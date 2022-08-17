@@ -12,7 +12,7 @@ static void set_db_text(HWND hWnd, int val)
 {
   char buf[16] ;
   sprintf(buf,"%3.2fdB",(KSSPLAY_VOL_STEP*val));
-  SetWindowText(hWnd, buf) ;
+  SetWindowTextA(hWnd, buf) ;
 }
 
 static __int32 adjust_func1(__int32 value)
@@ -50,7 +50,7 @@ static void create_pan_slider(HWND hDlg,CONFIG *config)
 static void update_page(HWND hDlg, CONFIG *config)
 {
   HWND hWnd ;
-  int i, master_volume = CONFIG_get_int(config,"MASTER_VOL");
+  int i/*, master_volume = CONFIG_get_int(config,"MASTER_VOL")*/;
  
   hWnd = GetDlgItem(hDlg, IDC_MASTERVOL);
   SendMessage(hWnd, TBM_SETRANGE, TRUE, MAKELONG(0,128));
@@ -62,8 +62,8 @@ static void update_page(HWND hDlg, CONFIG *config)
   {
     hWnd = GetDlgItem(hDlg, PAN_SLIDER[i].id);
     SendMessage(hWnd, TBM_SETRANGE, TRUE, MAKELONG(0,256));
-    SendMessage(hWnd, TBM_SETPAGESIZE, 0, (long)16);
-    SendMessage(hWnd, TBM_SETTIC, 0, (long)128);
+    SendMessage(hWnd, TBM_SETPAGESIZE, 0, (LPARAM)16);
+    SendMessage(hWnd, TBM_SETTIC, 0, (LPARAM)128);
     CONFIG_wr_slider(config, hDlg, PAN_SLIDER[i].name, PAN_SLIDER[i].id, adjust_pan_wr);
   }
 
@@ -72,7 +72,7 @@ static void update_page(HWND hDlg, CONFIG *config)
     hWnd = GetDlgItem(hDlg, SLIDER_ID[i]) ;
     SendMessage(hWnd, TBM_SETRANGE, TRUE, MAKELONG(0,256)) ;
     SendMessage(hWnd, TBM_SETTICFREQ, 32, 0) ;
-    SendMessage(hWnd, TBM_SETPOS, TRUE, (long)128-config->curvol[i]) ;
+    SendMessage(hWnd, TBM_SETPOS, TRUE, (LPARAM)128-config->curvol[i]) ;
     set_db_text(GetDlgItem(hDlg,DBTEXT_ID[i]),config->curvol[i]) ;
 
     if(config->mute[i])
@@ -86,13 +86,13 @@ static void update_page(HWND hDlg, CONFIG *config)
 
   if(CONFIG_get_int(config,"AUTOSAVE_VOLUME"))
   {
-    EnableWindow(GetDlgItem(hDlg, IDC_SAVE), FALSE);
-    EnableWindow(GetDlgItem(hDlg, IDC_RESTORE), FALSE);
+    EnableControl(hDlg, IDC_SAVE, FALSE);
+    EnableControl(hDlg, IDC_RESTORE, FALSE);
   }
   else
   {
-    EnableWindow(GetDlgItem(hDlg, IDC_SAVE), TRUE);
-    EnableWindow(GetDlgItem(hDlg, IDC_RESTORE), TRUE);
+    EnableControl(hDlg, IDC_SAVE, TRUE);
+    EnableControl(hDlg, IDC_RESTORE, TRUE);
   }
 
 }
@@ -155,7 +155,7 @@ static BOOL bn_clicked_event(HWND hDlg, UINT uIdc, CONFIG *config)
 
 }
 
-static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   CONFIG *config ;
   int dwPos, i ;
@@ -163,12 +163,12 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
   if(uMsg == WM_INITDIALOG)
   {
     config = ((CONFIG *)((LPPROPSHEETPAGE)lParam)->lParam) ;
-    SetProp(hDlg,"CONFIG",config) ;
+    SetProp(hDlg, TEXT("CONFIG"),config) ;
     update_page(hDlg, config) ;
     SetTimer(hDlg,1,200,NULL) ;
     return TRUE ;
   }
-  else config = (CONFIG *)GetProp(hDlg,"CONFIG") ;
+  else config = (CONFIG *)GetProp(hDlg, TEXT("CONFIG")) ;
 
   switch(uMsg)
   {
@@ -187,9 +187,9 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
       if((HWND)lParam == GetDlgItem(hDlg,PAN_SLIDER[i].id))
       {
-        dwPos = 128 - SendMessage((HWND)lParam, TBM_GETPOS, 0, 0);
+        dwPos = 128 - (int)SendMessage((HWND)lParam, TBM_GETPOS, 0, 0);
         if(-16<dwPos&&dwPos<16)
-          SendMessage((HWND)lParam, TBM_SETPOS, TRUE, (long)128) ;
+          SendMessage((HWND)lParam, TBM_SETPOS, TRUE, (LPARAM)128) ;
         
         CONFIG_rd_slider(config, hDlg, PAN_SLIDER[i].name, PAN_SLIDER[i].id, adjust_pan_rd);
         config->pan_update = 1 ;
@@ -208,7 +208,7 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     for(i=0;i<EDSC_MAX;i++)
     {
-      dwPos = 128-SendMessage((HWND)lParam, TBM_GETPOS, 0, 0);
+      dwPos = 128-(int)SendMessage((HWND)lParam, TBM_GETPOS, 0, 0);
       if((HWND)lParam == GetDlgItem(hDlg,SLIDER_ID[i]))
       {
         config->curvol[i] = dwPos;
@@ -236,7 +236,7 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
   case WM_DESTROY:
     KillTimer(hDlg,1) ;
-    RemoveProp(hDlg,"CONFIG") ;
+    RemoveProp(hDlg, TEXT("CONFIG")) ;
     return TRUE ;
 
   default:
@@ -256,7 +256,7 @@ HPROPSHEETPAGE CreateConfigPage5(HINSTANCE hInst, CONFIG *config)
   psp.pszIcon = NULL;
   psp.pfnDlgProc = dlgProc;
   psp.pszTitle = NULL;
-  psp.lParam = (long)config ;
+  psp.lParam = (LPARAM)config ;
 
   return CreatePropertySheetPage(&psp) ;
 }

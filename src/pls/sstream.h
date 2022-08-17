@@ -10,7 +10,7 @@ typedef struct tagSST
 } SST ;
 
 SST *SST_new(void) ;
-int SST_set_text(SST *sst, char *str) ;
+int SST_set_text(SST *sst, const char *str) ;
 char *SST_sublimate(SST *sst) ;
 void  SST_delete(SST *sst) ;
 int SST_seekoff(SST *sst, long offset) ;

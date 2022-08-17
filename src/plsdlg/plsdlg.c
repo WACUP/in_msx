@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <assert.h>
 #include <commctrl.h>
+#include <commdlg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #if defined(_MSC_VER)
@@ -14,7 +15,10 @@
 #include "config/config.h"
 #include "rc/resource.h"
 #include "plsdlg/plsdlg.h"
-#include "winamp/frontend.h"
+
+#include <winamp/wa_cup.h>
+#define WA_UTILS_SIMPLE
+#include <../../loader/loader/utils.h>
 
 static UINT chks[4] = { IDC_PSGCHK, IDC_SCCCHK, IDC_OPLLCHK, IDC_OPLCHK } ;
 static UINT lbldb[4] = { IDC_PSGDB, IDC_SCCDB, IDC_OPLLDB, IDC_OPLDB } ;
@@ -42,7 +46,7 @@ static void set_time_text(HWND hWnd, int time)
   if(h) sprintf(buf,"%02d:%02d:%02d",h,m,s) ;
   else sprintf(buf,"%02d:%02d",m,s) ;
   
-  SetWindowText(hWnd, buf) ;
+  SetWindowTextA(hWnd, buf) ;
 
 }
 
@@ -51,7 +55,7 @@ static void set_num_text(HWND hWnd, int val)
   char buf[16] ;
 
   sprintf(buf,"%d",val) ;
-  SetWindowText(hWnd, buf) ;
+  SetWindowTextA(hWnd, buf) ;
 }
 
 static void set_db_text(HWND hWnd, int val)
@@ -59,7 +63,7 @@ static void set_db_text(HWND hWnd, int val)
   char buf[16] ;
 
   sprintf(buf,"%3.2fdB",(KSSPLAY_VOL_STEP*val)) ;
-  SetWindowText(hWnd, buf) ;
+  SetWindowTextA(hWnd, buf) ;
 }
 
 
@@ -76,7 +80,7 @@ static int find_item(PLSDLG *plsdlg, char *text)
   int pos, max ;
   char *fn ;
 
-  max = SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTLENGTH) - 1 ;
+  max = (int)SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTLENGTH) - 1 ;
   for(pos=0;pos<=max;pos++)
   {
     fn = (char *)SendMessage(plsdlg->hWinamp,WM_WA_IPC,pos,IPC_GETPLAYLISTFILE) ;
@@ -89,7 +93,7 @@ static int find_item(PLSDLG *plsdlg, char *text)
 
 static void clean_pls(PLSDLG *plsdlg)
 {
-  int pos=SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTPOS) ; /* PUSH */
+  int pos=(int)SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTPOS) ; /* PUSH */
   SendMessage(plsdlg->hWinamp,WM_WA_IPC,plsdlg->pos,IPC_SETPLAYLISTPOS) ;
   SendMessage(plsdlg->hWinamp,WM_WA_IPC,(WPARAM)plsdlg->plsitem->filename,IPC_CHANGECURRENTFILE) ;
   SendMessage(plsdlg->hWinamp,WM_WA_IPC,pos,IPC_SETPLAYLISTPOS) ; /* POP */
@@ -100,11 +104,11 @@ static void update_item(PLSDLG *plsdlg, PLSITEM *item)
   char buf[_MAX_PATH] ;
   int i ;
 
-  if(GetWindowText(GetDlgItem(plsdlg->hDialog, IDC_TITLE), buf, 256))
+  if(GetWindowTextA(GetDlgItem(plsdlg->hDialog, IDC_TITLE), buf, 256))
     PLSITEM_set_title(item,buf) ;
   else PLSITEM_set_title(item,NULL) ;
 
-  if(GetWindowText(GetDlgItem(plsdlg->hDialog, IDC_SONG), buf, 8))
+  if(GetWindowTextA(GetDlgItem(plsdlg->hDialog, IDC_SONG), buf, 8))
     item->song = atoi(buf) ; 
   else item->song = 0 ;
   
@@ -113,19 +117,19 @@ static void update_item(PLSDLG *plsdlg, PLSITEM *item)
   PLSITEM_set_filename(item,buf) ;
   */
 
-  if(GetWindowText(GetDlgItem(plsdlg->hDialog, IDC_PLAYTIME), buf, 16))
+  if(GetWindowTextA(GetDlgItem(plsdlg->hDialog, IDC_PLAYTIME), buf, 16))
     item->time_in_ms = PPLS_get_time(buf,-1) ;
   else item->time_in_ms = -1 ;
 
-  if(GetWindowText(GetDlgItem(plsdlg->hDialog, IDC_LOOPTIME), buf, 16))
+  if(GetWindowTextA(GetDlgItem(plsdlg->hDialog, IDC_LOOPTIME), buf, 16))
     item->loop_in_ms = PPLS_get_time(buf,-1) ;
   else item->loop_in_ms = -1 ;
 
-  if(GetWindowText(GetDlgItem(plsdlg->hDialog, IDC_FADETIME), buf, 16))
+  if(GetWindowTextA(GetDlgItem(plsdlg->hDialog, IDC_FADETIME), buf, 16))
     item->fade_in_ms = PPLS_get_time(buf,-1) ;
   else item->fade_in_ms = -1 ;
 
-  if(GetWindowText(GetDlgItem(plsdlg->hDialog, IDC_LOOP), buf, 8))
+  if(GetWindowTextA(GetDlgItem(plsdlg->hDialog, IDC_LOOP), buf, 8))
     item->loop_num = atoi(buf) ; 
   else item->loop_num = -1 ;
 
@@ -134,7 +138,7 @@ static void update_item(PLSDLG *plsdlg, PLSITEM *item)
     if(IsDlgButtonChecked(plsdlg->hDialog, chks[i])==BST_CHECKED)
     {
       item->enable_vol[i] = 1 ;
-      item->vol[i] = (char)SendMessage(GetDlgItem(plsdlg->hDialog,spins[i]), UDM_GETPOS, 0, 0) ;
+      item->vol[i] = (char)SendDlgItemMessage(plsdlg->hDialog, spins[i], UDM_GETPOS, 0, 0) ;
     }
     else
     {
@@ -150,7 +154,7 @@ static void write_pls(PLSDLG *plsdlg)
   int pos ;
 
   update_item(plsdlg, plsdlg->plsitem) ;
-  pos=SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTPOS) ; /* PUSH */
+  pos=(int)SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTPOS) ; /* PUSH */
   SendMessage(plsdlg->hWinamp,WM_WA_IPC,plsdlg->pos,IPC_SETPLAYLISTPOS) ;
   PLSITEM_print(plsdlg->plsitem,buf,NULL) ;
   SendMessage(plsdlg->hWinamp,WM_WA_IPC,(WPARAM)buf,IPC_CHANGECURRENTFILE) ;
@@ -180,33 +184,33 @@ static void enable_volbox(PLSDLG *plsdlg, int i)
 {
   int vol = plsdlg->plsitem->vol[i] ;
 
-  EnableWindow(GetDlgItem(plsdlg->hDialog, lbldb[i]), TRUE) ;
-  EnableWindow(GetDlgItem(plsdlg->hDialog, spins[i]), TRUE) ;
+  EnableControl(plsdlg->hDialog, lbldb[i], TRUE) ;
+  EnableControl(plsdlg->hDialog, spins[i], TRUE) ;
   if(vol<0) vol = 0;
   set_db_text(GetDlgItem(plsdlg->hDialog, lbldb[i]), vol) ;
-  SendMessage(GetDlgItem(plsdlg->hDialog,spins[i]),UDM_SETPOS, 0, MAKELONG((short)vol, 0)) ;
+  SendDlgItemMessage(plsdlg->hDialog, spins[i], UDM_SETPOS, 0, MAKELONG((short)vol, 0)) ;
 }
 
 static void disable_volbox(PLSDLG *plsdlg, int i)
 {
-  EnableWindow(GetDlgItem(plsdlg->hDialog, lbldb[i]), FALSE) ;
-  EnableWindow(GetDlgItem(plsdlg->hDialog, spins[i]), FALSE) ;
-  SetWindowText(GetDlgItem(plsdlg->hDialog, lbldb[i]), "") ;
+  EnableControl(plsdlg->hDialog, lbldb[i], FALSE) ;
+  EnableControl(plsdlg->hDialog, spins[i], FALSE) ;
+  SetWindowText(GetDlgItem(plsdlg->hDialog, lbldb[i]), TEXT("")) ;
 }
 
 static int get_filename(HWND hWnd, char *buf, int max)
 {
-  OPENFILENAME ofn ;
+  OPENFILENAMEA ofn ;
 
-  memset(&ofn,0,sizeof(OPENFILENAME)) ;
-  ofn.lStructSize = sizeof(OPENFILENAME);
+  memset(&ofn,0,sizeof(OPENFILENAMEA)) ;
+  ofn.lStructSize = sizeof(OPENFILENAMEA);
   ofn.hwndOwner = hWnd ;
   ofn.lpstrFilter = "Playlist Files(*.pls)\0*.pls\0All Files(*.*)\0*.*\0\0";
   ofn.Flags = OFN_OVERWRITEPROMPT ; 
   ofn.lpstrFile = buf ;
   ofn.nMaxFile = max ;
 
-  return GetSaveFileName(&ofn) ;
+  return GetSaveFileNameA(&ofn) ;
 }
 
 static void save_pls(PLSDLG *plsdlg)
@@ -217,11 +221,11 @@ static void save_pls(PLSDLG *plsdlg)
   {
     char pls[PLSITEM_PRINT_SIZE] ;
     FILE *fp ;
-    int i, max=SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTLENGTH) - 1 ;
+    int i, max=(int)SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTLENGTH) - 1 ;
 
     if((fp=fopen(plsfile,"w"))==NULL)
     {
-      MessageBox(plsdlg->hDialog,"File can't open!","ERROR",MB_OK) ;
+      MessageBox(plsdlg->hDialog, TEXT("File can't open!"), TEXT("ERROR"),MB_OK) ;
       return ;
     }
 
@@ -245,15 +249,15 @@ static void apply_all(PLSDLG *plsdlg)
   int i,sav, max ;
 
   i = MessageBox(plsdlg->hDialog,
-    "New parameters will be applied to all items in playlists.\n\r"
-    "(Empty parameters will be remained current value.)",
-    "Notice",MB_OKCANCEL|MB_ICONWARNING) ;
+    TEXT("New parameters will be applied to all items in playlists.\n\r")
+    TEXT("(Empty parameters will be remained current value.)"),
+    TEXT("Notice"),MB_OKCANCEL|MB_ICONWARNING) ;
   if(i==IDCANCEL) return ;
 
   update_item(plsdlg, plsdlg->plsitem) ;
-  sav = SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTPOS) ;
+  sav = (int)SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTPOS) ;
 
-  max=SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTLENGTH) - 1 ;
+  max=(int)SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTLENGTH) - 1 ;
 
   for(i=0;i<=max;i++)
   {
@@ -307,22 +311,22 @@ static void PLSDLG_set_multimode(PLSDLG *plsdlg, int mode)
   if(mode)
   {
     plsdlg->multi = 1 ;
-    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_TITLE), "") ;
-    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_PLAYTIME), "") ;
-    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_LOOPTIME), "") ;
-    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_FADETIME), "") ;
-    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_LOOP), "") ;
-    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_FILENAME), "") ;
-    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_SONG),"**") ;
-    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_POS),"ALL") ;
-    EnableWindow(GetDlgItem(plsdlg->hDialog,IDC_FILENAME),FALSE) ;
-    EnableWindow(GetDlgItem(plsdlg->hDialog,IDC_SONGSPIN),FALSE) ;
-    EnableWindow(GetDlgItem(plsdlg->hDialog,IDC_PREV),FALSE) ;
-    EnableWindow(GetDlgItem(plsdlg->hDialog,IDC_NEXT),FALSE) ;
-    EnableWindow(GetDlgItem(plsdlg->hDialog,IDC_SYNC),FALSE) ;
-    EnableWindow(GetDlgItem(plsdlg->hDialog,IDC_SEARCH),FALSE) ;
-    EnableWindow(GetDlgItem(plsdlg->hDialog,IDC_RESET),FALSE) ;
-    EnableWindow(GetDlgItem(plsdlg->hDialog,IDC_CLEAN),FALSE) ;
+    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_TITLE), TEXT("")) ;
+    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_PLAYTIME), TEXT("")) ;
+    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_LOOPTIME), TEXT("")) ;
+    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_FADETIME), TEXT("")) ;
+    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_LOOP), TEXT("")) ;
+    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_FILENAME), TEXT("")) ;
+    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_SONG), TEXT("**")) ;
+    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_POS), TEXT("ALL")) ;
+    EnableControl(plsdlg->hDialog,IDC_FILENAME,FALSE) ;
+    EnableControl(plsdlg->hDialog,IDC_SONGSPIN,FALSE) ;
+    EnableControl(plsdlg->hDialog,IDC_PREV,FALSE) ;
+    EnableControl(plsdlg->hDialog,IDC_NEXT,FALSE) ;
+    EnableControl(plsdlg->hDialog,IDC_SYNC,FALSE) ;
+    EnableControl(plsdlg->hDialog,IDC_SEARCH,FALSE) ;
+    EnableControl(plsdlg->hDialog,IDC_RESET,FALSE) ;
+    EnableControl(plsdlg->hDialog,IDC_CLEAN,FALSE) ;
     for(i=0;i<4;i++)
     {
       disable_volbox(plsdlg,i) ;
@@ -332,14 +336,14 @@ static void PLSDLG_set_multimode(PLSDLG *plsdlg, int mode)
   else
   {
     plsdlg->multi = 0 ;
-    EnableWindow(GetDlgItem(plsdlg->hDialog,IDC_FILENAME),TRUE) ;
-    EnableWindow(GetDlgItem(plsdlg->hDialog,IDC_SONGSPIN),TRUE) ;
-    EnableWindow(GetDlgItem(plsdlg->hDialog,IDC_PREV),TRUE) ;
-    EnableWindow(GetDlgItem(plsdlg->hDialog,IDC_NEXT),TRUE) ;
-    EnableWindow(GetDlgItem(plsdlg->hDialog,IDC_SYNC),TRUE) ;
-    EnableWindow(GetDlgItem(plsdlg->hDialog,IDC_SEARCH),TRUE) ;
-    EnableWindow(GetDlgItem(plsdlg->hDialog,IDC_RESET),TRUE) ;
-    EnableWindow(GetDlgItem(plsdlg->hDialog,IDC_CLEAN),TRUE) ;
+    EnableControl(plsdlg->hDialog,IDC_FILENAME,TRUE) ;
+    EnableControl(plsdlg->hDialog,IDC_SONGSPIN,TRUE) ;
+    EnableControl(plsdlg->hDialog,IDC_PREV,TRUE) ;
+    EnableControl(plsdlg->hDialog,IDC_NEXT,TRUE) ;
+    EnableControl(plsdlg->hDialog,IDC_SYNC,TRUE) ;
+    EnableControl(plsdlg->hDialog,IDC_SEARCH,TRUE) ;
+    EnableControl(plsdlg->hDialog,IDC_RESET,TRUE) ;
+    EnableControl(plsdlg->hDialog,IDC_CLEAN,TRUE) ;
   }
   PLSDLG_update(plsdlg) ;
 }
@@ -355,7 +359,7 @@ static BOOL bn_clicked_event(HWND hDlg, UINT uIdc, PLSDLG *plsdlg)
     return TRUE ;
   }
 
-  max=SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTLENGTH) - 1 ;
+  max=(int)SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTLENGTH) - 1 ;
   if(max<0) return FALSE ;
 
   switch(uIdc)
@@ -395,7 +399,7 @@ static BOOL bn_clicked_event(HWND hDlg, UINT uIdc, PLSDLG *plsdlg)
     return TRUE ;
 
   case IDC_CLEAN:
-    if(MessageBox(hDlg,"All information of the current item will be removed.","Notice",MB_OKCANCEL)==IDOK)
+    if(MessageBox(hDlg, TEXT("All information of the current item will be removed."), TEXT("Notice"),MB_OKCANCEL)==IDOK)
     {
       if(plsdlg->pos <= max) clean_pls(plsdlg) ; else plsdlg->pos = 0 ;
       PLSDLG_set_item(plsdlg,plsdlg->pos) ;
@@ -411,7 +415,7 @@ static BOOL bn_clicked_event(HWND hDlg, UINT uIdc, PLSDLG *plsdlg)
     return TRUE ;
 
   case IDC_PLAYTIME_NOW:
-    time_in_ms = SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETOUTPUTTIME);
+    time_in_ms = (int)SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETOUTPUTTIME);
     set_time_text(GetDlgItem(hDlg,IDC_PLAYTIME), time_in_ms) ;
     return TRUE ;
 
@@ -461,7 +465,7 @@ static BOOL spin_event(HWND hDlg, HWND hSpin, PLSDLG *plsdlg)
 {
   int pos ;
   
-  pos = SendMessage(hSpin, UDM_GETPOS, 0, 0) ;
+  pos = (int)SendMessage(hSpin, UDM_GETPOS, 0, 0) ;
 
   if(hSpin == GetDlgItem(hDlg, IDC_PSGSPIN))
     set_db_text(GetDlgItem(hDlg, IDC_PSGDB), (char)pos) ;
@@ -476,11 +480,11 @@ static BOOL spin_event(HWND hDlg, HWND hSpin, PLSDLG *plsdlg)
   return TRUE ;
 }
 
-static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   PLSDLG *plsdlg ;
   int pos ;
-  plsdlg = (PLSDLG *)GetProp(hDlg,"PLSDLG") ;
+  plsdlg = (PLSDLG *)GetProp(hDlg, TEXT("PLSDLG")) ;
 
   switch(uMsg)
   {
@@ -499,11 +503,11 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     break ;
 
   case WM_TIMER:
-    pos=SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTPOS) ;
+    pos=(int)SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTPOS) ;
     if((plsdlg->pos == pos)&&(!plsdlg->multi))
-      EnableWindow(GetDlgItem(hDlg, IDC_PLAYTIME_NOW), TRUE) ;
+      EnableControl(hDlg, IDC_PLAYTIME_NOW, TRUE) ;
     else
-      EnableWindow(GetDlgItem(hDlg, IDC_PLAYTIME_NOW), FALSE) ;
+      EnableControl(hDlg, IDC_PLAYTIME_NOW, FALSE) ;
 
     return TRUE ;
 
@@ -531,10 +535,10 @@ PLSDLG *PLSDLG_new(void)
 void PLSDLG_set_item(PLSDLG *plsdlg, int pos)
 {
   char *text ;
-  int max = SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTLENGTH) - 1 ;
+  int max = (int)SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTLENGTH) - 1 ;
 
   if(max<0) return ;
-  if(pos<0) pos=SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTPOS) ;
+  if(pos<0) pos=(int)SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_GETLISTPOS) ;
 
   text = (char *)SendMessage(plsdlg->hWinamp,WM_WA_IPC,pos,IPC_GETPLAYLISTFILE) ;
   plsdlg->pos = pos ;
@@ -548,19 +552,19 @@ void PLSDLG_update(PLSDLG *plsdlg)
   assert(plsdlg) ;
   if(plsdlg->hDialog&&plsdlg->plsitem&&!plsdlg->multi)
   {
-    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_TITLE), plsdlg->plsitem->title) ;
-    SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_FILENAME), plsdlg->plsitem->filename) ;
+    SetDlgItemTextA(plsdlg->hDialog, IDC_TITLE, plsdlg->plsitem->title) ;
+    SetDlgItemTextA(plsdlg->hDialog, IDC_FILENAME, plsdlg->plsitem->filename) ;
     set_num_text(GetDlgItem(plsdlg->hDialog,IDC_SONG), plsdlg->plsitem->song) ;
     set_num_text(GetDlgItem(plsdlg->hDialog,IDC_POS), plsdlg->pos+1) ;
     if(plsdlg->plsitem->loop_num>=0)
     {
       set_num_text(GetDlgItem(plsdlg->hDialog,IDC_LOOP), plsdlg->plsitem->loop_num) ;
-      SendMessage(GetDlgItem(plsdlg->hDialog,IDC_LOOPSPIN),UDM_SETPOS, 0, MAKELONG((short)plsdlg->plsitem->loop_num, 0)) ;
+      SendDlgItemMessage(plsdlg->hDialog, IDC_LOOPSPIN, UDM_SETPOS, 0, MAKELONG((short)plsdlg->plsitem->loop_num, 0)) ;
     }
     else
     {
-      SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_LOOP), "") ;
-      SendMessage(GetDlgItem(plsdlg->hDialog,IDC_LOOPSPIN),UDM_SETPOS, 0, MAKELONG((short)0, 0)) ;
+      SetWindowText(GetDlgItem(plsdlg->hDialog,IDC_LOOP), TEXT("")) ;
+      SendDlgItemMessage(plsdlg->hDialog, IDC_LOOPSPIN, UDM_SETPOS, 0, MAKELONG((short)0, 0)) ;
     }
 
     set_time_text(GetDlgItem(plsdlg->hDialog,IDC_PLAYTIME), plsdlg->plsitem->time_in_ms) ;
@@ -569,7 +573,7 @@ void PLSDLG_update(PLSDLG *plsdlg)
     
     for(i=0;i<4;i++)
     {
-      SendMessage(GetDlgItem(plsdlg->hDialog,spins[i]), UDM_SETRANGE, TRUE, MAKELONG(255,-255)) ;
+      SendDlgItemMessage(plsdlg->hDialog, spins[i], UDM_SETRANGE, TRUE, MAKELONG(255,-255)) ;
       if(plsdlg->plsitem->enable_vol[i])
       {
         CheckDlgButton(plsdlg->hDialog,chks[i],BST_CHECKED) ;
@@ -606,7 +610,7 @@ void PLSDLG_open(PLSDLG *plsdlg,HINSTANCE hInst, HWND hWinamp)
     plsdlg->hWinamp = hWinamp ;
     plsdlg->hDialog = CreateDialog(hInst,MAKEINTRESOURCE(IDD_PLSDLG), hWinamp, dlgProc) ;
     assert(plsdlg->hDialog) ;
-    SetProp(plsdlg->hDialog,"PLSDLG",plsdlg) ;
+    SetProp(plsdlg->hDialog, TEXT("PLSDLG"),plsdlg) ;
     plsdlg->hPrev=(HICON)LoadImage(hInst,MAKEINTRESOURCE(IDI_PREV),IMAGE_ICON,16,16,LR_DEFAULTCOLOR);
     plsdlg->hPlay=(HICON)LoadImage(hInst,MAKEINTRESOURCE(IDI_PLAY),IMAGE_ICON,16,16,LR_DEFAULTCOLOR);
     plsdlg->hStop=(HICON)LoadImage(hInst,MAKEINTRESOURCE(IDI_STOP),IMAGE_ICON,16,16,LR_DEFAULTCOLOR);
@@ -617,8 +621,8 @@ void PLSDLG_open(PLSDLG *plsdlg,HINSTANCE hInst, HWND hWinamp)
     SendDlgItemMessage(plsdlg->hDialog,IDC_STOP,BM_SETIMAGE,IMAGE_ICON,(LPARAM)plsdlg->hStop) ;
     SendDlgItemMessage(plsdlg->hDialog,IDC_NEXT,BM_SETIMAGE,IMAGE_ICON,(LPARAM)plsdlg->hNext) ;
     SendDlgItemMessage(plsdlg->hDialog,IDC_LOGO,STM_SETIMAGE,IMAGE_ICON,(LPARAM)plsdlg->hLogo) ;
-    SendMessage(GetDlgItem(plsdlg->hDialog,IDC_LOOPSPIN), UDM_SETRANGE, TRUE, MAKELONG(255,0)) ;
-    SendMessage(GetDlgItem(plsdlg->hDialog,IDC_SONGSPIN), UDM_SETRANGE, TRUE, MAKELONG(255,0)) ;
+    SendDlgItemMessage(plsdlg->hDialog,IDC_LOOPSPIN,UDM_SETRANGE,TRUE,MAKELONG(255,0)) ;
+    SendDlgItemMessage(plsdlg->hDialog,IDC_SONGSPIN,UDM_SETRANGE,TRUE,MAKELONG(255,0)) ;
     SetTimer(plsdlg->hDialog, 1, 200, NULL) ;
     plsdlg->multi = 0 ;
     PLSDLG_set_multimode(plsdlg,plsdlg->multi) ;
@@ -635,7 +639,7 @@ void PLSDLG_close(PLSDLG *plsdlg)
   if(plsdlg->hDialog)
   {
     KillTimer(plsdlg->hDialog, 1) ;
-    RemoveProp(plsdlg->hDialog,"PLSDLG") ; 
+    RemoveProp(plsdlg->hDialog, TEXT("PLSDLG")) ;
     DestroyWindow(plsdlg->hDialog) ;
     DestroyIcon(plsdlg->hPrev) ;
     DestroyIcon(plsdlg->hPlay) ;

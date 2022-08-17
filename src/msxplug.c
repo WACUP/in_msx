@@ -1,6 +1,7 @@
 /* .KSS .MGS .BGM .MPK input plug-in for Winamp ver 2.xx Copyright (c) 2001, Mitsutaka Okazaki */
 #include <stdio.h>
 #include <windows.h>
+#include <stdlib.h>
 #include <commctrl.h>
 #if defined(_DEBUG)
 #include <crtdbg.h>
@@ -11,14 +12,24 @@
 #include "in_msx.h"
 #include "msxplug.h"
 
-/* Message Box */
-#define MBOX_ERR(M,T) MessageBox(NULL, M, T, MB_OK|MB_ICONERROR);
-#define MBOX_WARN(M,T) MessageBox(NULL, M, T, MB_OK|MB_ICONWARNING);
+#define WA_UTILS_SIMPLE
+#include <../loader/loader/paths.h>
+#include <../loader/loader/utils.h>
 
+/* Message Box */
+#define MBOX_ERR(M,T) MessageBox(NULL, TEXT(M), TEXT(T), MB_OK|MB_ICONERROR);
+#define MBOX_WARN(M,T) MessageBox(NULL, TEXT(M), TEXT(T), MB_OK|MB_ICONWARNING);
+
+extern BOOL force_mono(void);
+
+#ifdef DEBUG
 /* Logfile */
-static char mod_path[MAX_PATH] ; /* where in_msx.dll wakes up. */
+static wchar_t mod_path[MAX_PATH]; /* where in_msx.dll wakes up. */
 static FILE *logfp;
 #define LOGWRITE(S,V) (logfp?fprintf(logfp,S,V),fflush(logfp):0)
+#else
+#define LOGWRITE(S,V)
+#endif
 
 /* User Interfaces */
 #include "config/config.h"
@@ -28,10 +39,11 @@ static FILE *logfp;
 #include "optdlg/optdlg.h"
 #include "maskdlg/maskdlg.h"
 
-#define WM_WA_UNKNOWN (WM_USER + 1)
-#define WM_WA_MPEG_EOF (WM_USER + 2)
+#include <winamp/wa_cup.h>
+#define THE_INPUT_PLAYBACK_GUID
+#include <winamp/in2.h>
 
-extern In_Module mod ; 
+extern In_Module plugin ; 
 
 /* the buffer size, sample rate, number of channel, BitsPerSample */
 static int BUFSIZE, RATE, NCH, BPS ;
@@ -110,13 +122,13 @@ static HHOOK hHookCallWndProc ;
 /* Critical Section */
 static CRITICAL_SECTION cso ;
 
-static void IMSG(char *title, int i)
+/*static void IMSG(char *title, int i)
 {
   char buf[256] ;
 
   itoa(i,buf,255) ;
   MessageBox(NULL,buf,title,MB_OK) ;
-}
+}*/
 
 static LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
@@ -166,7 +178,8 @@ static LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
       break ;
     }
   }
-	return CallNextHookEx(hHookCallWndProc, nCode, wParam, lParam);
+    // there's no need to use the return hook proc as per MSDN
+	return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
 static LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
@@ -186,7 +199,8 @@ static LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
     }
   }
 
-	return CallNextHookEx(hHookKeyboard, nCode, wParam, lParam);
+	// there's no need to use the return hook proc as per MSDN
+	return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
 /* Grab Winamp Main Window */
@@ -293,7 +307,7 @@ int MSXPLUG_getDecodeTime()
 
 int MSXPLUG_getOutputTime()
 {
-  return mod.GetOutputTime();
+  return plugin.GetOutputTime();
 }
 
 /*=========================================================================
@@ -303,20 +317,20 @@ int MSXPLUG_getOutputTime()
 ==========================================================================*/
 void MSXPLUG_optdlg(HWND hwndParent)
 {
-  if(hwndParent==NULL) hwndParent = mod.hMainWindow;
-  OPTDLG_open(optdlg, hwndParent, mod.hDllInstance);
+  if(hwndParent==NULL) hwndParent = plugin.hMainWindow;
+  OPTDLG_open(optdlg, hwndParent, plugin.hDllInstance);
 }
 
 void MSXPLUG_edit2413(HWND hwndParent)
 {
-  if(hwndParent==NULL) hwndParent = mod.hMainWindow;
-  EDIT2413_open(edit2413, hwndParent, mod.hDllInstance) ;
+  if(hwndParent==NULL) hwndParent = plugin.hMainWindow;
+  EDIT2413_open(edit2413, hwndParent, plugin.hDllInstance) ;
 }
 
 void MSXPLUG_maskdlg(HWND hwndParent)
 {
-  if(hwndParent==NULL) hwndParent = mod.hMainWindow;
-  MASKDLG_open(maskdlg, hwndParent, mod.hDllInstance);
+  if(hwndParent==NULL) hwndParent = plugin.hMainWindow;
+  MASKDLG_open(maskdlg, hwndParent, plugin.hDllInstance);
 }
 
 /*=========================================================================
@@ -326,21 +340,28 @@ void MSXPLUG_maskdlg(HWND hwndParent)
 ==========================================================================*/
 void MSXPLUG_config(HWND hwndParent)
 {
-  if(hwndParent==NULL) hwndParent = mod.hMainWindow;
-  CONFIG_dialog_show(cfg, hwndParent, mod.hDllInstance, 0) ;
+  MSXPLUG_init();
+  if(hwndParent==NULL) hwndParent = plugin.hMainWindow;
+  CONFIG_dialog_show(cfg, hwndParent, plugin.hDllInstance, 0) ;
 }
 
+#ifndef WACUP_BUILD
 void MSXPLUG_about(HWND hwndParent)
 {
-  /* CONFIG_dialog_show(cfg, hwndParent, mod.hDllInstance, 5) ; */
-  MessageBox(hwndParent, IN_MSX_ABOUT, "About MSXplug", MB_OK);
+  /* CONFIG_dialog_show(cfg, hwndParent, plugin.hDllInstance, 5) ; */
+  //MessageBox(hwndParent, TEXT(IN_MSX_ABOUT), TEXT("About MSXplug"), MB_OK);
 }
 
 static HANDLE hDbgfile ;
 
+int MSXPLUG_init()
+#else
 void MSXPLUG_init()
+#endif
 {
-  char *p, logfile[MAX_PATH+16];
+#ifdef _DEBUG
+  wchar_t *p, logfile[MAX_PATH+16] = {0};
+#endif
 
 #if defined(_MSC_VER)
 #ifdef _DEBUG
@@ -350,33 +371,43 @@ void MSXPLUG_init()
   _CrtSetReportFile( _CRT_WARN, (HANDLE)hDbgfile ) ;
 #endif
 #endif
-  InitCommonControls();
+
+#ifdef WACUP_BUILD
+  if (cfg)
+  {
+      return;
+  }
+#endif
+
   InitializeCriticalSection(&cso) ;
 
+#ifdef _DEBUG
   /* Get plug-in directory */
-  if(!GetModuleFileName(mod.hDllInstance, mod_path, MAX_PATH))
+  if(!GetModuleFileName(plugin.hDllInstance, mod_path, MAX_PATH))
   {
     MBOX_ERR("Fatal Error.", PLUGIN_NAME);
     return ;
   }
-  p = mod_path + strlen(mod_path) ;
-  while((mod_path<=p)&&(*p!='\\')) p-- ;
-  *(p+1) = '\0' ;  
+  p = mod_path + wcslen(mod_path) ;
+  while((mod_path<=p)&&(*p!=L'\\')) p-- ;
+  *(p+1) = L'\0' ;  
 
   /* Open logfile */
-  strcpy(logfile, mod_path);
-  strcat(logfile, PLUGIN_NAME ".log");
+  wcscpy(logfile, mod_path);
+  wcscat(logfile, PLUGIN_NAME ".log");
   logfp = fopen(logfile, "w");
   /* if(logfp==NULL)
     MBOX_WARN("Can't create logfile.", logfile); */
-
+#endif
   LOGWRITE("I'm " PLUGIN_NAME " at %s\n", mod_path);
   /* Load Configuration data */
-  cfg = CONFIG_new(mod_path, PLUGIN_NAME) ;
+  cfg = CONFIG_new((char*)GetPaths()->settings_dir_83/*mod_path*/, PLUGIN_NAME) ;
+#ifndef WACUP_BUILD
   cfg->iswinamp = 1;
+#endif
 
   CONFIG_load(cfg) ;
-  cfg->hYM2413 = (HICON)LoadImage(mod.hDllInstance,MAKEINTRESOURCE(IDB_YM2413),IMAGE_BITMAP,57,23,LR_DEFAULTCOLOR);
+  cfg->hYM2413 = (HICON)LoadImage(plugin.hDllInstance,MAKEINTRESOURCE(IDB_YM2413),IMAGE_BITMAP,57,23,LR_DEFAULTCOLOR);
 
   LOGWRITE("Configuration finished.\n", 0) ;
 
@@ -394,9 +425,14 @@ void MSXPLUG_init()
   load_drivers() ;
   LOGWRITE("Some drivers have been loaded.",0);
 
-  mod.FileExtensions = cfg->extensions ;
+#ifndef WACUP_BUILD
+  // under wacup we'll use the newer callback
+  // instead of pre-generating this ansi copy
+  plugin.FileExtensions = cfg->extensions ;
+#endif
   LOGWRITE("Finished init().\n", 0);
 
+#ifndef WACUP_BUILD
   if(CONFIG_get_int(cfg,"OPENSETUP"))
   {
     LOGWRITE("This is the first time to use " PLUGIN_NAME ".\n", 0);
@@ -404,6 +440,8 @@ void MSXPLUG_init()
     CONFIG_set_int(cfg,"OPENSETUP",0) ;
     LOGWRITE("Config dialog is opened.\n", 0);
   }
+  return IN_INIT_SUCCESS;
+#endif
 }
 
 void MSXPLUG_quit() 
@@ -438,16 +476,15 @@ void MSXPLUG_quit()
 
   DeleteCriticalSection(&cso) ;
 
-  CONFIG_save(cfg) ;
-  LOGWRITE("Configuration Saved.\n",0);
-
   CONFIG_delete(cfg) ;
   LOGWRITE("Configuration Deleted.\n",0);
 
   UngrabWinamp() ;
   LOGWRITE("Ungrab Winamp.\n",0);
 
+#ifdef _DEBUG
   if(logfp) fclose(logfp);
+#endif
 
 #ifdef _MSC_VER
 #ifdef _DEBUG
@@ -458,11 +495,17 @@ void MSXPLUG_quit()
 
 }
 
-int MSXPLUG_isourfile(char *fn) 
+/*int MSXPLUG_isourfile(const in_char *fn) 
 { 
+#if 0
   PLSITEM *item ;
 
-  item = PLSITEM_new(fn) ;
+  char filepath[_MAX_PATH] = { 0 };
+  ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), fn, CP_ACP);
+
+  MSXPLUG_init();
+
+  item = PLSITEM_new(filepath) ;
 
   if(item->type)
   {
@@ -479,7 +522,10 @@ int MSXPLUG_isourfile(char *fn)
     PLSITEM_delete(item) ;
     return 0;
   }
-} 
+#else
+  return 0;
+#endif
+}*/
 
 static void detect_time_setting(void)
 {
@@ -517,14 +563,14 @@ static void detect_time_setting(void)
 void MSXPLUG_play2(int pos, int arg)
 {
   play_arg = arg ;
-  SendMessage(mod.hMainWindow,WM_WA_IPC,pos,IPC_SETPLAYLISTPOS) ;
-  PostMessage(mod.hMainWindow, WM_COMMAND, WINAMP_BUTTON2, 0) ;
+  SendMessage(plugin.hMainWindow,WM_WA_IPC,pos,IPC_SETPLAYLISTPOS) ;
+  PostMessage(plugin.hMainWindow, WM_COMMAND, WINAMP_BUTTON2, 0) ;
 }
 
 void MSXPLUG_play_song(int pos)
 {
   MSXPLUG_set_song(pos);
-  PostMessage(mod.hMainWindow, WM_COMMAND, WINAMP_BUTTON2, 0) ;
+  PostMessage(plugin.hMainWindow, WM_COMMAND, WINAMP_BUTTON2, 0) ;
 }
 
 static void kss2pls(KSS *kss, char *base, int i, char *buf, int buflen, int playtime, int fadetime) {
@@ -552,7 +598,7 @@ static void kss2pls(KSS *kss, char *base, int i, char *buf, int buflen, int play
 
 }
 
-static int play_setup(char *fn)
+static int play_setup(const char *fn)
 {
   PLSITEM *item ;
   int i;
@@ -587,20 +633,30 @@ static int play_setup(char *fn)
 
   RATE = CONFIG_get_int(cfg,"RATE") ;
 
+  if (!force_mono())
+  {
   switch(CONFIG_get_int(cfg,"STEREO"))
   {
   case 0: /* AUTO */ 
     NCH = current_kss->stereo||(CONFIG_get_int(cfg,"OPLL_STEREO")&&current_kss->fmpac)?2:1;
     break;
 
-  case 1: /* MONO */
-  default:
+    case 1: /* msx */
     NCH = 1;
     break;
 
   case 2: /* STEREO */
+    default:
     NCH = 2;
     break;
+  }
+  }
+  else
+  {
+      // if the force mono playback mode is enabled then
+      // this will show that state via the config dialog
+      // but will prevent this plug-in's mode being used
+      NCH = 1;
   }
 
   BUFSIZE = CONFIG_get_int(cfg,"BUFSIZE") ;
@@ -676,15 +732,15 @@ static int play_setup(char *fn)
     static char plsfile[MAX_PATH+16];
     static char buf[MAX_PATH];
 
-    strcpy(plsfile,mod_path);
+    strcpy(plsfile, GetPaths()->settings_dir_83/*mod_path*/);
     strcat(plsfile,"in_msx.pls");
-    kss2pls(current_kss, fn, 0, buf, MAX_PATH, play_time, fade_time);
+    kss2pls(current_kss, (char *)fn, 0, buf, MAX_PATH, play_time, fade_time);
     SendMessage(hMainWindow,WM_WA_IPC,(WPARAM)buf,IPC_CHANGECURRENTFILE);
     FILE *fp = fopen(plsfile,"w");
     if(fp) {
       fprintf(fp,"[playlist]\n");
-      for(int i=1;i<current_kss->info_num;i++) {
-        kss2pls(current_kss, fn, i, buf, MAX_PATH, play_time, fade_time);
+      for(i=1;i<current_kss->info_num;i++) {
+        kss2pls(current_kss, (char *)fn, i, buf, MAX_PATH, play_time, fade_time);
         fprintf(fp,"File%d=%s\n",i,buf);
       }
       fprintf(fp,"NumberofEntries=%d\n",current_kss->info_num-1);
@@ -693,7 +749,7 @@ static int play_setup(char *fn)
       COPYDATASTRUCT cds;
       cds.dwData = IPC_PLAYFILE;
       cds.lpData = (void *) plsfile; 
-      cds.cbData = strlen((char *) cds.lpData)+1;
+      cds.cbData = (int)strlen((char *) cds.lpData)+1;
       SendMessage(hMainWindow,WM_COPYDATA,(WPARAM)NULL,(LPARAM)&cds);
     }
     song=0;
@@ -757,50 +813,53 @@ static void setup_window(void)
   static int flag = 1 ;
   if(flag)
   {  
-    GrabWinamp(mod.hMainWindow) ;
-    cfg->hWinamp = mod.hMainWindow ;
+    MSXPLUG_init() ;
+    GrabWinamp(plugin.hMainWindow) ;
+    cfg->hWinamp = plugin.hMainWindow ;
     EDIT2413_load(edit2413,cfg->ill_path) ;
     flag = 0 ;
   }
 }
 
 static int refresh_current_item(void) ;
-int MSXPLUG_play(char *fn) {
+int MSXPLUG_play(const in_char *fn) {
   
   int maxlatency ;
 
   setup_window() ;  
 
-  current_pos = SendMessage(mod.hMainWindow,WM_WA_IPC,0,IPC_GETLISTPOS) ;
+  current_pos = (int)SendMessage(plugin.hMainWindow,WM_WA_IPC,0,IPC_GETLISTPOS) ;
 
   if(plsdlg&&plsdlg->sync)
     PLSDLG_set_item(plsdlg,current_pos) ;
 
-  if(play_setup(fn))
+  char filepath[_MAX_PATH] = { 0 };
+  ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), fn, CP_ACP);
+  if(play_setup(filepath))
   {
     play_arg = 0 ;
     return 1 ;
   }
 
-  maxlatency = mod.outMod->Open(RATE,NCH,BPS, -1,-1);
+  maxlatency = plugin.outMod->Open(RATE,NCH,BPS, -1,-1);
 	if(maxlatency < 0)
   {
     play_arg = 0 ;
     return 1 ;
   }
 	
-	mod.SetInfo((RATE*BPS*NCH)/1000,RATE/1000,NCH,1);
-	mod.SAVSAInit(maxlatency,RATE);
-	mod.VSASetInfo(RATE,NCH);
-	mod.outMod->SetVolume(-666);
-  mod.outMod->Flush(0) ;
+	plugin.SetInfo((RATE*BPS*NCH)/1000,RATE/1000,NCH,1);
+	plugin.SAVSAInit(maxlatency,RATE);
+	plugin.VSASetInfo(RATE,NCH);
+	plugin.outMod->SetVolume(-666);
+  plugin.outMod->Flush(0) ;
   flush_flag = 1 ;
 
   if(pls_refresh_flag)
   {
     if(refresh_current_item())
     {
-      MessageBox(mod.hMainWindow, "MSXplug internal Error", "Internal Error", MB_OK) ;
+      MessageBox(plugin.hMainWindow, TEXT("MSXplug internal Error"), TEXT("Internal Error"), MB_OK) ;
     }
     else return 0 ;
   }
@@ -814,8 +873,8 @@ int MSXPLUG_play(char *fn) {
   return 0 ; 
 } 
 
-void MSXPLUG_pause() { pause_flag = 1 ; mod.outMod->Pause(1) ; } 
-void MSXPLUG_unpause() { pause_flag = 0 ; mod.outMod->Pause(0) ; } 
+void MSXPLUG_pause() { pause_flag = 1 ; plugin.outMod->Pause(1) ; } 
+void MSXPLUG_unpause() { pause_flag = 0 ; plugin.outMod->Pause(0) ; } 
 int MSXPLUG_ispaused() { return pause_flag ; } 
 
 static int isPlaying(void) ;
@@ -825,7 +884,7 @@ static void update_pls(void)
   char buf[PLSITEM_PRINT_SIZE] ;
   PLSITEM *item ;
 
-  item = PLSITEM_new((char *)SendMessage(mod.hMainWindow,WM_WA_IPC,current_pos,IPC_GETPLAYLISTFILE)) ;
+  item = PLSITEM_new((char *)SendMessage(plugin.hMainWindow,WM_WA_IPC,current_pos,IPC_GETPLAYLISTFILE)) ;
   if(loop1_pos==0)
   {
     if((detect_mode==1)||(detect_mode==4))
@@ -852,10 +911,10 @@ static void update_pls(void)
     item->loop_in_ms = 0 ;
   }
 
-  pos = SendMessage(mod.hMainWindow,WM_WA_IPC,0,IPC_GETLISTPOS) ;
-  SendMessage(mod.hMainWindow,WM_WA_IPC,current_pos,IPC_SETPLAYLISTPOS) ;
-  SendMessage(mod.hMainWindow,WM_WA_IPC,(WPARAM)PLSITEM_print(item,buf,NULL),IPC_CHANGECURRENTFILE) ;
-  SendMessage(mod.hMainWindow,WM_WA_IPC,pos,IPC_SETPLAYLISTPOS) ;
+  pos = (int)SendMessage(plugin.hMainWindow,WM_WA_IPC,0,IPC_GETLISTPOS) ;
+  SendMessage(plugin.hMainWindow,WM_WA_IPC,current_pos,IPC_SETPLAYLISTPOS) ;
+  SendMessage(plugin.hMainWindow,WM_WA_IPC,(WPARAM)PLSITEM_print(item,buf,NULL),IPC_CHANGECURRENTFILE) ;
+  SendMessage(plugin.hMainWindow,WM_WA_IPC,pos,IPC_SETPLAYLISTPOS) ;
   PLSDLG_set_item(plsdlg,-1) ;
   PLSITEM_delete(item) ;
 }
@@ -868,8 +927,8 @@ void MSXPLUG_stop()
   kssplay = NULL ;
   free(sample_buf) ;
   sample_buf = NULL;
-  mod.outMod->Close();
-  mod.SAVSADeInit();
+  plugin.outMod->Close();
+  plugin.SAVSADeInit();
 }
 
 int MSXPLUG_getlength()
@@ -881,8 +940,8 @@ int MSXPLUG_getoutputtime()
 {
   if(seek_pos) 
 	return POS2MS(decode_pos);
-  if(mod.outMod) 
-	return mod.outMod->GetOutputTime();
+  if(plugin.outMod) 
+	return plugin.outMod->GetOutputTime();
   
   return 0;
 }
@@ -904,7 +963,7 @@ void MSXPLUG_setoutputtime(int time_in_ms)
     decode_pos = 0 ;
   }
   
-  mod.outMod->Flush(POS2MS(decode_pos)) ;
+  plugin.outMod->Flush(POS2MS(decode_pos)) ;
   flush_flag = 1 ;
 
   play_start() ;
@@ -912,29 +971,30 @@ void MSXPLUG_setoutputtime(int time_in_ms)
 
 void MSXPLUG_setvolume(int volume)
 {
-  mod.outMod->SetVolume(volume) ;
+  plugin.outMod->SetVolume(volume) ;
 }
 
 void MSXPLUG_setpan(int pan)
 {
-  mod.outMod->SetPan(pan) ;
+  plugin.outMod->SetPan(pan) ;
 }
 
 int MSXPLUG_plsdlg(HWND hwnd)
 {
-  PLSDLG_open(plsdlg, mod.hDllInstance, mod.hMainWindow) ;
+  PLSDLG_open(plsdlg, plugin.hDllInstance, plugin.hMainWindow) ;
   PLSDLG_set_item(plsdlg,-1) ;
   return 0 ;
 }
 
-int MSXPLUG_infoDlg(char *fn, HWND hwnd)
+int MSXPLUG_infoDlg(const in_char *fn, HWND hwnd)
 {
   PLSITEM *item ;
+  char filepath[_MAX_PATH] = { 0 };
+  ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), fn, CP_ACP);
+  item = PLSITEM_new(filepath) ;
+  KSSDLG_open(kssdlg, plugin.hDllInstance, plugin.hMainWindow) ;
 
-  item = PLSITEM_new(fn) ;
-  KSSDLG_open(kssdlg, mod.hDllInstance, mod.hMainWindow) ;
-
-  if(strcmp(fn,current_file)==0)
+  if(strcmp(filepath,current_file)==0)
     KSSDLG_update(kssdlg, item->filename,item->type);
   else
     KSSDLG_update(kssdlg, item->filename,1);
@@ -944,16 +1004,27 @@ int MSXPLUG_infoDlg(char *fn, HWND hwnd)
   return 0 ;
 }
 
-void MSXPLUG_getfileinfo(char *filename, char *title, int *length_in_ms)
+void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in_ms)
 {
   const int MAXLEN = _MAX_PATH ;
   PLSITEM *item ;
   
+  MSXPLUG_init();
 
   if((!filename)||(!filename[0]))
   {
+#ifndef WACUP_BUILD
     strncpy(title, (char *)current_kss->title, MAXLEN) ;
     title[MAXLEN] = '\0';
+#else
+    wchar_t* wtitle = ConvertANSI((char*)current_kss->title, CP_ACP);
+    if (wtitle)
+    {
+        wcsncpy(title, wtitle, GETFILEINFO_TITLE_LENGTH);
+        AutoCharDupFree(wtitle);
+    }
+#endif
+
     if(play_time_unknown) *length_in_ms = 0 ;
     else if(loop_num) *length_in_ms = play_time + fade_time ;
     else *length_in_ms = 0 ;
@@ -962,7 +1033,9 @@ void MSXPLUG_getfileinfo(char *filename, char *title, int *length_in_ms)
     
   if(filename)
   {
-    item = PLSITEM_new(filename) ;
+    char filepath[_MAX_PATH] = { 0 };
+    ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), filename, CP_ACP);
+    item = PLSITEM_new(filepath) ;
 
     if(item->time_in_ms<=0) *length_in_ms = 0 ;
     else
@@ -979,8 +1052,17 @@ void MSXPLUG_getfileinfo(char *filename, char *title, int *length_in_ms)
 
     if(item->title)
     {
+#ifndef WACUP_BUILD
       strncpy(title, item->title, MAXLEN) ;
       title[MAXLEN] = '\0';
+#else
+      wchar_t* wtitle = ConvertANSI(item->title, CP_ACP);
+      if (wtitle)
+      {
+          wcsncpy(title, wtitle, GETFILEINFO_TITLE_LENGTH);
+          AutoCharDupFree(wtitle);
+      }
+#endif
     }
     else
     {
@@ -988,8 +1070,17 @@ void MSXPLUG_getfileinfo(char *filename, char *title, int *length_in_ms)
 
       if((kss = KSS_load_file(item->filename))==NULL)
       {
+#ifndef WACUP_BUILD
         strncpy(title,item->filename,MAXLEN) ;
         title[MAXLEN] = '\0';
+#else
+        wchar_t* wtitle = ConvertANSI(item->filename, CP_ACP);
+        if (wtitle)
+        {
+            wcsncpy(title, wtitle, GETFILEINFO_TITLE_LENGTH);
+            AutoCharDupFree(wtitle);
+        }
+#endif
       }
       else
       {
@@ -998,8 +1089,18 @@ void MSXPLUG_getfileinfo(char *filename, char *title, int *length_in_ms)
           strncpy((char *)kss->title, item->filename, KSS_TITLE_MAX) ;
           kss->title[KSS_TITLE_MAX-1] = '\0' ;
         }
+
+#ifndef WACUP_BUILD
         strncpy(title,(char *)kss->title,MAXLEN) ;
         title[MAXLEN]='\0';
+#else
+        wchar_t* wtitle = ConvertANSI((char*)kss->title, CP_ACP);
+        if (wtitle)
+        {
+            wcsncpy(title, wtitle, GETFILEINFO_TITLE_LENGTH);
+            AutoCharDupFree(wtitle);
+        }
+#endif
         KSS_delete(kss) ;
       }
     }
@@ -1009,7 +1110,9 @@ void MSXPLUG_getfileinfo(char *filename, char *title, int *length_in_ms)
   
 }
 
+#ifndef WACUP_BUILD
 void MSXPLUG_eq_set(int on, char data[10], int preamp){} 
+#endif
 
 /*=========================================================================
 
@@ -1027,11 +1130,11 @@ static DWORD WINAPI __stdcall NoPlayThread(void *b)
   Sleep(100) ;
   if(pls_refresh_flag==1)
   {      
-    PostMessage(mod.hMainWindow, WM_WA_MPEG_EOF, 0, 0) ; // Stop and Next
+    PostMessage(plugin.hMainWindow, WM_WA_MPEG_EOF, 0, 0) ; // Stop and Next
   }
   else
   {
-    PostMessage(mod.hMainWindow, WM_COMMAND, WINAMP_BUTTON4, 0) ; // Stop Only
+    PostMessage(plugin.hMainWindow, WM_COMMAND, WINAMP_BUTTON4, 0) ; // Stop Only
   }
   pls_refresh_flag = 0 ;
 
@@ -1061,7 +1164,7 @@ static void play_stop()
   killPlayThread = 1 ;
   if (WaitForSingleObject(thread_handle,3000) == WAIT_TIMEOUT)
   {
-    MessageBox(mod.hMainWindow,"Error asking thread to die!\n","error killing decode thread",0);
+    MessageBox(plugin.hMainWindow, TEXT("Error asking thread to die!\n"), TEXT("error killing decode thread"), 0);
 	TerminateThread(thread_handle,0);
   }
   CloseHandle(thread_handle);
@@ -1131,7 +1234,7 @@ static DWORD WINAPI __stdcall PlayThread(void *b)
   {
     if(!isPlaying()||isFadeEnd()) /* Stop : Wait until finish playing */
     {  
-      if(mod.outMod->IsPlaying()&&!flush_flag)
+      if(plugin.outMod->IsPlaying()&&!flush_flag)
       {
         Sleep(10) ;
         continue ;
@@ -1145,15 +1248,15 @@ static DWORD WINAPI __stdcall PlayThread(void *b)
         case 1: /* Refresh playlist and play next. */
         case 3:
           pls_refresh_flag = 1 ;
-          PostMessage(mod.hMainWindow, WM_COMMAND, WINAMP_BUTTON2, 0) ;
+          PostMessage(plugin.hMainWindow, WM_COMMAND, WINAMP_BUTTON2, 0) ;
           break ;
         case 2: /* Replay current song. */
           pls_refresh_flag = 0 ;
-          PostMessage(mod.hMainWindow, WM_COMMAND, WINAMP_BUTTON2, 0) ;
+          PostMessage(plugin.hMainWindow, WM_COMMAND, WINAMP_BUTTON2, 0) ;
           break;
         case 4: /* Refresh playlist and stop. */
           pls_refresh_flag = 2 ;
-          PostMessage(mod.hMainWindow, WM_COMMAND, WINAMP_BUTTON2, 0) ;
+          PostMessage(plugin.hMainWindow, WM_COMMAND, WINAMP_BUTTON2, 0) ;
           break ;
         default:
           break ;
@@ -1161,12 +1264,12 @@ static DWORD WINAPI __stdcall PlayThread(void *b)
       }
       else if(kssplay->kss->type!=KSSDATA||playlist_mode)
       {
-        PostMessage(mod.hMainWindow, WM_WA_MPEG_EOF, 0, 0) ;
+        PostMessage(plugin.hMainWindow, WM_WA_MPEG_EOF, 0, 0) ;
       }
       else
       {
         song=(song+1)%0xff ;
-        PostMessage(mod.hMainWindow, WM_COMMAND, WINAMP_BUTTON2, 0) ;
+        PostMessage(plugin.hMainWindow, WM_COMMAND, WINAMP_BUTTON2, 0) ;
       }
 
       *(int*)b = 1 ;
@@ -1185,19 +1288,19 @@ static DWORD WINAPI __stdcall PlayThread(void *b)
       else
       {
         seek_pos = 0 ;
-        mod.outMod->Flush(decode_pos_ms) ;
+        plugin.outMod->Flush(decode_pos_ms) ;
         flush_flag = 1 ;
       }
 
     }
-    else if(mod.outMod->CanWrite() >= (length<<(mod.dsp_isactive()?1:0))) /* Create wave buffer */
+    else if(plugin.outMod->CanWrite() >= (length<<(plugin.dsp_isactive()?1:0))) /* Create wave buffer */
 	{
 
 #define PRE_BLANK 5
       if(decode_pos < PRE_BLANK) /* A measure for DirectSound Plug-in */
       {
         decode_pos++ ;
-        mod.outMod->Write((char *)sample_buf, length) ;
+        plugin.outMod->Write((char *)sample_buf, length) ;
         continue ;
       }
 
@@ -1210,13 +1313,13 @@ static DWORD WINAPI __stdcall PlayThread(void *b)
       if(isBeforeFade()&&(isLooped()||play_time<decode_pos_ms-PRE_BLANK))
         KSSPLAY_fade_start(kssplay,fade_time) ;
 
-      if (mod.dsp_isactive())
-        length=mod.dsp_dosamples((short *)sample_buf,BUFSIZE,BPS,NCH,RATE) * (NCH*(BPS/8)) ;
+      if (plugin.dsp_isactive())
+        length=plugin.dsp_dosamples((short *)sample_buf,BUFSIZE,BPS,NCH,RATE) * (NCH*(BPS/8)) ;
 
-      mod.outMod->Write((char *)sample_buf,length);
+      plugin.outMod->Write((char *)sample_buf,length);
       flush_flag = 0 ;
-      mod.SAAddPCMData(sample_buf,NCH,BPS,decode_pos_ms) ;
-			mod.VSAAddPCMData(sample_buf,NCH,BPS,decode_pos_ms) ;
+      plugin.SAAddPCMData(sample_buf,NCH,BPS,decode_pos_ms) ;
+			plugin.VSAAddPCMData(sample_buf,NCH,BPS,decode_pos_ms) ;
 
     }
     else Sleep(10);

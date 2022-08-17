@@ -27,7 +27,7 @@ typedef struct tagPLSITEM
 
 } PLSITEM ;
 
-PLSITEM *PLSITEM_new(char *text) ;
+PLSITEM *PLSITEM_new(const char *text) ;
 void PLSITEM_delete(PLSITEM *elem) ;
 char *PLSITEM_print(PLSITEM *elem, char *buf, char *plsfile) ;
 void PLSITEM_adjust(PLSITEM *elem, int play_time, int fade_time, int loop_num, int vol[4]) ;

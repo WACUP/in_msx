@@ -5,10 +5,10 @@
 #include "config.h"
 #include "pandlg/pandlg.h"
 
-static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  BOOL ret;
-  CONFIG * config = (CONFIG *)GetProp(hDlg, "CONFIG") ;
+  INT_PTR ret;
+  CONFIG * config = (CONFIG *)GetProp(hDlg, TEXT("CONFIG")) ;
   switch(uMsg)
   {
   case WM_COMMAND:
@@ -47,7 +47,7 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void CONFIG_dialog_show(CONFIG *config, HWND hWnd, HINSTANCE hInst, int page)
 {
-  HPROPSHEETPAGE hpsp[9];
+  HPROPSHEETPAGE hpsp[9] = { 0 };
   PROPSHEETHEADER psh;
 
   if(!config->dialog)
@@ -57,11 +57,14 @@ void CONFIG_dialog_show(CONFIG *config, HWND hWnd, HINSTANCE hInst, int page)
     hpsp[2] = CreateConfigPage1(hInst, config);
     hpsp[3] = CreateConfigPage2(hInst, config);
     hpsp[4] = CreateConfigPage3(hInst, config);
+#ifndef WACUP_BUILD
     if(config->iswinamp)
     {
+#endif
       hpsp[5] = CreateConfigPage4(hInst, config);
       hpsp[6] = CreateConfigPage6(hInst, config);
       hpsp[7] = CreateConfigPage8(hInst, config);
+#ifndef WACUP_BUILD
       hpsp[8] = CreateConfigPageA(hInst, config);
     }
     else
@@ -69,20 +72,26 @@ void CONFIG_dialog_show(CONFIG *config, HWND hWnd, HINSTANCE hInst, int page)
       hpsp[5] = CreateConfigPage8(hInst, config);
       hpsp[6] = CreateConfigPageA(hInst, config);
     }
+#endif
 
     psh.dwSize = sizeof(PROPSHEETHEADER);
     psh.dwFlags = PSH_MODELESS ;
     psh.hwndParent = hWnd;
     psh.hInstance = hInst;
     psh.pszIcon = NULL;
+#ifndef WACUP_BUILD
     psh.pszCaption = config->iswinamp?(LPSTR)"MSXplug for Winamp"
                                      :(LPSTR)"MSXplug for KbMediaPlayer";
     psh.nPages = config->iswinamp?9:7;
+#else
+	psh.pszCaption = TEXT("MSXplug for WACUP");
+	psh.nPages = 8;
+#endif
     psh.phpage = hpsp;
 
     config->dialog = (HWND)PropertySheet(&psh) ;
-    SetProp(config->dialog, "CONFIG", config) ;
-    config->dlgProc = (DLGPROC)SetWindowLong(config->dialog,GWL_WNDPROC,(long)dlgProc) ;
+    SetProp(config->dialog, TEXT("CONFIG"), config) ;
+    config->dlgProc = (DLGPROC)SetWindowLongPtr(config->dialog,GWLP_WNDPROC,(LONG_PTR)dlgProc) ;
     if(!config->pandlg) config->pandlg = PANDLG_new(hInst, config);
   }
   PropSheet_SetCurSel(config->dialog,0,page) ;
@@ -92,8 +101,9 @@ void CONFIG_dialog_show(CONFIG *config, HWND hWnd, HINSTANCE hInst, int page)
 void CONFIG_dialog_end(CONFIG *config)
 {
   if(!config->dialog) return ;
-  RemoveProp(config->dialog,"CONFIG") ;
-  SetWindowLong(config->dialog,GWL_WNDPROC,(long)config->dlgProc) ;
+  RemoveProp(config->dialog, TEXT("CONFIG")) ;
+  SetWindowLongPtr(config->dialog,GWLP_WNDPROC,(LONG_PTR)config->dlgProc) ;
   DestroyWindow(config->dialog) ;
   config->dialog = NULL ;
+  CONFIG_save(config) ;
 }

@@ -18,18 +18,18 @@ static void update_config(HWND hDlg, CONFIG *config)
   CONFIG_rd_checkbtn(config, hDlg, "OPLL_STEREO",IDC_OPLL_STEREO);
 }
 
-static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   CONFIG *config ;
 
   if(uMsg == WM_INITDIALOG)
   {
     config = ((CONFIG *)((LPPROPSHEETPAGE)lParam)->lParam) ;
-    SetProp(hDlg,"CONFIG",config) ;
+    SetProp(hDlg, TEXT("CONFIG"),config) ;
     update_page(hDlg, config) ;
     return TRUE ;
   }
-  else config = (CONFIG *)GetProp(hDlg,"CONFIG") ;
+  else config = (CONFIG *)GetProp(hDlg, TEXT("CONFIG")) ;
 
   switch(uMsg)
   {
@@ -65,7 +65,7 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     break ;
   case WM_DESTROY:
-    RemoveProp(hDlg,"CONFIG") ;
+    RemoveProp(hDlg, TEXT("CONFIG")) ;
     return TRUE ;
 
   default:
@@ -85,7 +85,7 @@ HPROPSHEETPAGE CreateConfigPage3(HINSTANCE hInst, CONFIG *config)
   psp.pszIcon = NULL;
   psp.pfnDlgProc = dlgProc;
   psp.pszTitle = NULL;
-  psp.lParam = (long)config ;
+  psp.lParam = (LPARAM)config ;
   
   return CreatePropertySheetPage(&psp) ;
 }

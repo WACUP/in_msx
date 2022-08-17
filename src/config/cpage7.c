@@ -31,7 +31,7 @@ static void update_config(HWND hDlg, CONFIG *config)
   config->filter_update = 1;
 }
 
-static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   CONFIG *config ;
   int i,j;
@@ -39,7 +39,7 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
   if(uMsg == WM_INITDIALOG)
   {
     config = ((CONFIG *)((LPPROPSHEETPAGE)lParam)->lParam) ;
-    SetProp(hDlg,"CONFIG",config) ;
+    SetProp(hDlg, TEXT("CONFIG"),config) ;
     for(i=0;i<EDSC_MAX;i++)
     {
       char *cutoffs[]=
@@ -49,14 +49,14 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         "11000","12000","13000","14000","15000",
         "16000","17000","18000","19000","20000",NULL
       };
-      char *windows[]={"Square","Hamming","Hannig","Bartlett",NULL};
+      //char *windows[]={"Square","Hamming","Hannig","Bartlett",NULL};
       for(j=0;cutoffs[j];j++)
-        SendMessage(GetDlgItem(hDlg,IDs_CUTOFF[i]),CB_ADDSTRING,0,(LPARAM)cutoffs[j]);
+        SendDlgItemMessage(hDlg,IDs_CUTOFF[i],CB_ADDSTRING,0,(LPARAM)cutoffs[j]);
     }
     update_page(hDlg, config) ;
     return TRUE ;
   }
-  else config = (CONFIG *)GetProp(hDlg,"CONFIG") ;
+  else config = (CONFIG *)GetProp(hDlg, TEXT("CONFIG")) ;
 
   switch(uMsg)
   {
@@ -94,7 +94,7 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     break ;
 
   case WM_DESTROY:
-    RemoveProp(hDlg,"CONFIG") ;
+    RemoveProp(hDlg, TEXT("CONFIG")) ;
     return TRUE ;
 
   default:
@@ -114,7 +114,7 @@ HPROPSHEETPAGE CreateConfigPage7(HINSTANCE hInst, CONFIG *config)
   psp.pszIcon = NULL;
   psp.pfnDlgProc = dlgProc;
   psp.pszTitle = NULL;
-  psp.lParam = (long)config ;
+  psp.lParam = (LPARAM)config ;
   
   return CreatePropertySheetPage(&psp) ;
 }

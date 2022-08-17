@@ -8,6 +8,7 @@
 #include <string.h>
 #ifdef _MSC_VER
 #include <crtdbg.h>
+#include <ctype.h>
 #endif
 
 #include "ppls.h"
@@ -225,7 +226,7 @@ void PLSITEM_adjust(PLSITEM *item, int play_time,int fade_time, int loop_num, in
   return ;
 }
 
-PLSITEM *PLSITEM_new(char *text)
+PLSITEM *PLSITEM_new(const char *text)
 {
   PLSITEM *elem ;
   SST *sst ;
@@ -236,8 +237,7 @@ PLSITEM *PLSITEM_new(char *text)
   if(!sst) return NULL ;
   SST_set_text(sst, text) ;
 
-  if((elem = (PLSITEM *)malloc(sizeof(PLSITEM)))==NULL) return NULL ;
-  memset(elem,0,sizeof(PLSITEM)) ;
+  if((elem = (PLSITEM *)calloc(1,sizeof(PLSITEM)))==NULL) return NULL ;
 
   elem->time_in_ms = -1 ;
   elem->fade_in_ms = -1 ;
@@ -384,7 +384,7 @@ static void relative_path(char *src_path, char *dst_path, char *rel_path)
   }
   while(d>0&&dst_path[d-1]!='\\') d-- ;
 
-  max = 256 - strlen(dst_path+d) ; 
+  max = 256 - (int)strlen(dst_path+d) ;
 
   while(src_path[s]!='\0')
   {
@@ -425,7 +425,7 @@ char *PLSITEM_print(PLSITEM *elem, char *buf, char *plsfile)
   *(p++) = ',' ;
   if(elem->title)
   {
-    length = strlen(elem->title) ;
+    length = (int)strlen(elem->title) ;
     for(i=0;i<length;i++)
     {
       if(strchr("\\,",elem->title[i])) *(p++) = '\\' ;

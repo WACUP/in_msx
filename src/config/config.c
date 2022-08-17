@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <assert.h>
 #include <commctrl.h>
+#include <shlwapi.h>
 #include <string.h>
 #if defined(_DEBUG)
 #include <crtdbg.h>
@@ -12,12 +13,20 @@
 #include "pandlg/pandlg.h"
 #include "config.h"
 
+#include <winamp/wa_cup.h>
+#define THE_INPUT_PLAYBACK_GUID
+#include <winamp/in2.h>
+#define WA_UTILS_SIMPLE
+#include <../../loader/loader/utils.h>
+
+#ifndef WACUP_BUILD
 #define KSS_DESC "KSS\\KSS DATA (*.KSS)\\"
 #define MGS_DESC "MGS\\MGSDRV (*.MGS)\\"
 #define BGM_DESC "BGM\\MuSICA (*.BGM)\\BGR\\MuSICA (*.BGR)\\"
 #define MBM_DESC "MBM\\MoonBlaster (*.MBM)\\"
 #define MPK_DESC "MPK\\MPK (*.MPK)\\"
 #define OPX_DESC "OPX\\OPLLDriver (*.MPK)\\"
+#endif
 
 In_Module * winampGetInModule2() ;
 
@@ -50,12 +59,13 @@ static CONFIG_PARAM *new_param(char *name, __int32 min, __int32 max)
 {
   CONFIG_PARAM *p ;
 
-  p = (CONFIG_PARAM *)malloc(sizeof(CONFIG_PARAM));
+  p = (CONFIG_PARAM *)calloc(1, sizeof(CONFIG_PARAM));
   if(p)
   {
-    memset(p,0,sizeof(CONFIG_PARAM));
-    if(!(p->name=(char *)malloc(strlen(name)+1))) goto Error_Exit;
-    strcpy(p->name,name);
+    //memset(p,0,sizeof(CONFIG_PARAM));
+    /*if(!(p->name=(char *)malloc(strlen(name)+1))) goto Error_Exit;
+    strcpy(p->name,name);*/
+    if (!(p->name = _strdup(name))) goto Error_Exit;
     p->max = max;
     p->min = min;
   }
@@ -71,7 +81,7 @@ static void set_string(CONFIG_PARAM *p, char *val)
   free(p->data);
   p->data = malloc(strlen(val)+1);
   if(p->data) strcpy((char *)p->data, val);
-  else MessageBox(NULL,"OUTOFMEMORY","OUTOFMEMORY",MB_OK);
+  else MessageBox(NULL,TEXT("OUTOFMEMORY"), TEXT("OUTOFMEMORY"),MB_OK);
 }
 
 static void add_param(CONFIG *config, char *name, int type, int size, int format, __int32 min, __int32 max, void *def)
@@ -142,12 +152,12 @@ void CONFIG_set_array_int(CONFIG *config, char *name, __int32 idx, __int32 val)
     if(idx<p->size) ((__int32 *)p->data)[idx] = val;
     else
     {
-      MessageBox(NULL,name,"Error : Index overflow.", MB_OK);
+      MessageBoxA(NULL,name, "Error : Index overflow.", MB_OK);
     }
   }
   else
   {
-    MessageBox(NULL,name,"Error : Can't find the parameter.", MB_OK);
+    MessageBoxA(NULL,name, "Error : Can't find the parameter.", MB_OK);
   }
   LeaveCriticalSection(&config->cso);
 }
@@ -165,13 +175,13 @@ __int32 CONFIG_get_array_int(CONFIG *config, char *name, __int32 idx)
     }
     else
     {
-      MessageBox(NULL,name,"Error : Index overflow.", MB_OK);
+      MessageBoxA(NULL,name, "Error : Index overflow.", MB_OK);
       return 0;
     }
   }
   else
   {
-    MessageBox(NULL,name,"Error : Can't find the parameter.", MB_OK);
+    MessageBoxA(NULL,name, "Error : Can't find the parameter.", MB_OK);
     return 0;
   }
 }
@@ -210,7 +220,7 @@ char *CONFIG_get_str(CONFIG *config, char *name)
   }
   else
   {
-    MessageBox(NULL,name,"Error : Can't find the parameter.", MB_OK);
+    MessageBoxA(NULL,name, "Error : Can't find the parameter.", MB_OK);
   }
   LeaveCriticalSection(&config->cso);
 
@@ -230,7 +240,7 @@ __int32 CONFIG_get_int(CONFIG *config, char *name)
   }
   else
   {
-    MessageBox(NULL,name,"Error : Can't find the parameter.", MB_OK);
+    MessageBoxA(NULL,name, "Error : Can't find the parameter.", MB_OK);
   }
   LeaveCriticalSection(&config->cso);
   return ret;
@@ -239,6 +249,7 @@ __int32 CONFIG_get_int(CONFIG *config, char *name)
 
 CONFIG *CONFIG_new(char *path, char *section)
 {
+  char temp[MAX_PATH] = {0};
   CONFIG *config ;
 
   if(strlen(path)>=512) return NULL ;
@@ -316,13 +327,13 @@ CONFIG *CONFIG_new(char *path, char *section)
   _add_param_str("MBK_PATH",0,0,"");
   _add_param_str("MBK_DUMMY",0,0,"__DUMMY.MBK");
 
-  _add_param_str("MGSDRV",0,0,"C:\\Program Files\\Winamp\\Plugins\\MGSDRV.COM");
-  _add_param_str("KINROU",0,0,"C:\\Program Files\\Winamp\\Plugins\\KINROU5.DRV");
-  _add_param_str("MPK103",0,0,"C:\\Program Files\\Winamp\\Plugins\\MPK103.BIN");
-  _add_param_str("MPK106",0,0,"C:\\Program Files\\Winamp\\Plugins\\MPK.BIN");
-  _add_param_str("OPXDRV",0,0,"C:\\Program Files\\Winamp\\Plugins\\OPX4KSS.BIN");
-  _add_param_str("FMBIOS",0,0,"C:\\Program Files\\Winamp\\Plugins\\FMPAC.ROM");
-  _add_param_str("MBMDRV",0,0,"C:\\Program Files\\Winamp\\Plugins\\MBR143.001");
+  _add_param_str("MGSDRV",0,0,PathCombineA(temp,path,PLUGIN_NAME"\\MGSDRV.COM"));
+  _add_param_str("KINROU",0,0,PathCombineA(temp,path,PLUGIN_NAME"\\KINROU5.DRV"));
+  _add_param_str("MPK103",0,0,PathCombineA(temp,path,PLUGIN_NAME"\\MPK103.BIN"));
+  _add_param_str("MPK106",0,0,PathCombineA(temp,path,PLUGIN_NAME"\\MPK.BIN"));
+  _add_param_str("OPXDRV",0,0,PathCombineA(temp,path,PLUGIN_NAME"\\OPX4KSS.BIN"));
+  _add_param_str("FMBIOS",0,0,PathCombineA(temp,path,PLUGIN_NAME"\\FMPAC.ROM"));
+  _add_param_str("MBMDRV",0,0,PathCombineA(temp,path,PLUGIN_NAME"\\MBR143.001"));
 
   _add_param_int("TIME_DETECT_MODE",  FMT_DEC, 0,3,1);
   _add_param_int("TIME_DETECT_LEVEL", FMT_DEC, 0,1,0);
@@ -337,10 +348,12 @@ CONFIG *CONFIG_new(char *path, char *section)
   _add_param_int("OPLL_CH_PAN", FMT_DEC, 0,1<<28,0x7EDE79E);
   _add_param_int("EXPAND_INFO", FMT_BOOL, 0,1,0);
 
-  strcpy(config->file_name, path);
-  strcat(config->file_name, PLUGIN_NAME".ini");
-  strcpy(config->ill_path, path);
-  strcat(config->ill_path, PLUGIN_NAME".ill");
+  /*strcpy(config->file_name, path);
+  strcat(config->file_name, PLUGIN_NAME".ini");*/
+  PathCombineA(config->file_name, path, PLUGIN_NAME".ini");
+  /*strcpy(config->ill_path, path);
+  strcat(config->ill_path, PLUGIN_NAME".ill");*/
+  PathCombineA(config->ill_path, path, PLUGIN_NAME".ill");
   strcpy(config->section_name, section);
 
   return config ;
@@ -387,12 +400,12 @@ void CONFIG_load(CONFIG *config)
       switch(p->type)
       {
       case INT_PARAM:
-        GetPrivateProfileString(config->section_name, p->name, "", buf, 128, config->file_name);
+        GetPrivateProfileStringA(config->section_name, p->name, "", buf, 128, config->file_name);
         if(buf[0]) p->data = (void *)str2num(buf, p->min, p->max) ;
         break;
 
       case STR_PARAM:
-        GetPrivateProfileString(config->section_name, p->name, "", buf, 128, config->file_name);
+        GetPrivateProfileStringA(config->section_name, p->name, "", buf, 128, config->file_name);
         if(buf[0]) set_string(p,buf);
         break;
 
@@ -408,14 +421,16 @@ void CONFIG_load(CONFIG *config)
   config->vol[EDSC_OPLL] = CONFIG_get_int(config,"OPLL_VOL");
   config->vol[EDSC_OPL] = CONFIG_get_int(config,"OPL_VOL");
 
+#ifndef WACUP_BUILD
   if(CONFIG_get_int(config,"ENABLE_KSS")) strcpy(config->extensions, KSS_DESC) ;
   if(CONFIG_get_int(config,"ENABLE_MGS")) strcat(config->extensions, MGS_DESC) ;
   if(CONFIG_get_int(config,"ENABLE_BGM")) strcat(config->extensions, BGM_DESC) ;
+  if(CONFIG_get_int(config,"ENABLE_MBM")) strcat(config->extensions, MBM_DESC) ;
   if(CONFIG_get_int(config,"ENABLE_MPK")) strcat(config->extensions, MPK_DESC) ;
   if(CONFIG_get_int(config,"ENABLE_OPX")) strcat(config->extensions, OPX_DESC) ;
-  if(CONFIG_get_int(config,"ENABLE_MBM")) strcat(config->extensions, MBM_DESC) ;
   for(i=0;config->extensions[i]!='\0';i++)
     if(config->extensions[i]=='\\') config->extensions[i] = '\0';
+#endif
 }
 
 void CONFIG_save(CONFIG *config)
@@ -438,11 +453,11 @@ void CONFIG_save(CONFIG *config)
       switch(p->type)
       {
       case STR_PARAM:
-        WritePrivateProfileString(config->section_name, p->name, (char *)p->data, config->file_name);
+        WritePrivateProfileStringA(config->section_name, p->name, (char *)p->data, config->file_name);
         break;
 
       case INT_PARAM:
-        WritePrivateProfileString(config->section_name, p->name, itoa((__int32)p->data,buf,10), config->file_name);
+        WritePrivateProfileStringA(config->section_name, p->name, itoa((__int32)p->data,buf,10), config->file_name);
         break;
 
       default:
@@ -591,14 +606,14 @@ void CONFIG_text2param(CONFIG *config, char *buf, char *name)
 
 void CONFIG_wr_textbox(CONFIG *config, HWND hDlg, char *name, int idc)
 {
-  SetWindowText(GetDlgItem(hDlg,idc),CONFIG_param2text(config, name));
+  SetDlgItemTextA(hDlg,idc,CONFIG_param2text(config, name));
 }
 
 void CONFIG_rd_textbox(CONFIG *config, HWND hDlg, char *name, int idc)
 {
   char buf[512];
 
-  GetWindowText(GetDlgItem(hDlg,idc),buf,512);
+  GetWindowTextA(GetDlgItem(hDlg,idc),buf,512);
   CONFIG_text2param(config,buf,name);
 }
 
@@ -622,15 +637,15 @@ void CONFIG_rd_radiobtn(CONFIG *config, HWND hDlg, char *name, int first_idc, in
 void CONFIG_wr_slider(CONFIG *config, HWND hDlg, char *name, int idc,__int32 (*adjust_func)(__int32 value))
 {
   if(adjust_func)
-    SendMessage(GetDlgItem(hDlg, idc),TBM_SETPOS,TRUE,adjust_func(CONFIG_get_int(config,name))) ;
+    SendDlgItemMessage(hDlg,idc,TBM_SETPOS,TRUE,adjust_func(CONFIG_get_int(config,name))) ;
   else
-    SendMessage(GetDlgItem(hDlg, idc),TBM_SETPOS,TRUE,CONFIG_get_int(config,name)) ;
+    SendDlgItemMessage(hDlg,idc,TBM_SETPOS,TRUE,CONFIG_get_int(config,name)) ;
 }
 
 void CONFIG_rd_slider(CONFIG *config, HWND hDlg, char *name, int idc, __int32 (*adjust_func)(__int32 value))
 {
   if(adjust_func)
-    CONFIG_set_int(config,name,adjust_func(SendMessage(GetDlgItem(hDlg,idc),TBM_GETPOS,0,0))) ;
+    CONFIG_set_int(config,name,adjust_func((int)SendDlgItemMessage(hDlg,idc,TBM_GETPOS,0,0))) ;
   else
-    CONFIG_set_int(config,name,SendMessage(GetDlgItem(hDlg,idc),TBM_GETPOS,0,0)) ;
+    CONFIG_set_int(config,name,(int)SendDlgItemMessage(hDlg,idc,TBM_GETPOS,0,0)) ;
 }

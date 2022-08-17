@@ -41,10 +41,10 @@ void PANDLG_update_page(PANDLG *dlg)
   }
 }
 
-static BOOL CALLBACK PANDLG_dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK PANDLG_dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   static int S2P[] = { 2, 3, 1 };
-  PANDLG *ctx = (PANDLG *)GetProp(hDlg,"PanDialog") ;
+  PANDLG *ctx = (PANDLG *)GetProp(hDlg, TEXT("PanDialog")) ;
   int i,val = 0;
 
   switch(uMsg)
@@ -56,7 +56,7 @@ static BOOL CALLBACK PANDLG_dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM 
     for(i=0;i<14;i++)
     {
       if(IsDlgButtonChecked(ctx->hParam[i],IDC_TITLE)==BST_UNCHECKED)
-        val |= S2P[SendMessage(GetDlgItem(ctx->hParam[i],IDC_SLIDER),WM_USER,0,0)&3]<<(i*2);
+        val |= S2P[SendDlgItemMessage(ctx->hParam[i],IDC_SLIDER,WM_USER,0,0)&3]<<(i*2);
     }
     PANDLG_update_config(ctx,val);
     return TRUE;
@@ -115,7 +115,7 @@ void PANDLG_open(PANDLG *dlg, HWND hParent)
       y += rect.bottom - rect.top ;
       ShowWindow(dlg->hParam[i], SW_SHOW);
     }
-    SetProp(dlg->hDialog,"PanDialog",dlg);
+    SetProp(dlg->hDialog, TEXT("PanDialog"),dlg);
   }
   PANDLG_update_page(dlg);
   ShowWindow(dlg->hDialog, SW_SHOW);
@@ -124,7 +124,7 @@ void PANDLG_open(PANDLG *dlg, HWND hParent)
 void PANDLG_close(PANDLG *dlg)
 {
   DestroyWindow(dlg->hDialog);
-  RemoveProp(dlg->hDialog,"PanDialog");
+  RemoveProp(dlg->hDialog, TEXT("PanDialog"));
   dlg->hDialog=NULL;
 }
 

@@ -35,11 +35,11 @@ void SST_delete(SST *sst)
   }
 }
 
-int SST_set_text(SST *sst, char *str)
+int SST_set_text(SST *sst, const char *str)
 {
   if(sst->str) return -1 ;
 
-  sst->size = strlen(str) + 1 ;
+  sst->size = (int)strlen(str) + 1 ;
   if(!(sst->str = (unsigned char *)malloc(sst->size))) return -1 ;
   strcpy((char *)sst->str,str) ;
   sst->index = 0 ;

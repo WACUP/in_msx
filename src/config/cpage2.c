@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include "config.h"
 
+extern BOOL force_mono(void);
+
 static void print_time(char *buf, int time)
 {
   int h,m,s,ss = 0 ;
@@ -33,7 +35,20 @@ static void update_page(HWND hDlg, CONFIG *config)
   }
 
   CONFIG_wr_radiobtn(config,hDlg,"CPUSPEED",IDC_CLK_AUTO,IDC_CLK_FASTEST,0);
+  if (!force_mono())
+  {
   CONFIG_wr_radiobtn(config,hDlg,"STEREO",IDC_STEREO_AUTO,IDC_STEREO_ON,0);
+  }
+  else
+  {
+      // if the force mono playback mode is enabled then
+      // this will show that state via the config dialog
+      // but will prevent this plug-in's mode being used
+      CheckRadioButton(hDlg, IDC_STEREO_AUTO, IDC_STEREO_ON, IDC_STEREO_OFF);
+      EnableControl(hDlg, IDC_STEREO_AUTO, FALSE);
+      EnableControl(hDlg, IDC_STEREO_ON, FALSE);
+      EnableControl(hDlg, IDC_STEREO_OFF, FALSE);
+  }
   CONFIG_wr_checkbtn(config,hDlg,"PSG_HQ",IDC_PSG_HQ);
   CONFIG_wr_checkbtn(config,hDlg,"SCC_HQ",IDC_SCC_HQ);
   CONFIG_wr_checkbtn(config,hDlg,"OPLL_HQ",IDC_OPLL_HQ);
@@ -49,7 +64,10 @@ static void update_config(HWND hDlg, CONFIG *config)
       CONFIG_set_int(config,"RATE",rate_list[i]);
 
   CONFIG_rd_radiobtn(config,hDlg,"CPUSPEED",IDC_CLK_AUTO,IDC_CLK_FASTEST,0);
+  if (!force_mono())
+  {
   CONFIG_rd_radiobtn(config,hDlg,"STEREO",IDC_STEREO_AUTO,IDC_STEREO_ON,0);
+  }
   CONFIG_rd_checkbtn(config,hDlg,"PSG_HQ",IDC_PSG_HQ);
   CONFIG_rd_checkbtn(config,hDlg,"SCC_HQ",IDC_SCC_HQ);
   CONFIG_rd_checkbtn(config,hDlg,"OPLL_HQ",IDC_OPLL_HQ);
@@ -57,18 +75,18 @@ static void update_config(HWND hDlg, CONFIG *config)
 }
 
 
-static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   CONFIG *config ;
 
   if(uMsg == WM_INITDIALOG)
   {
     config = ((CONFIG *)((LPPROPSHEETPAGE)lParam)->lParam) ;
-    SetProp(hDlg,"CONFIG",config) ;
+    SetProp(hDlg, TEXT("CONFIG"),config) ;
     update_page(hDlg, config) ;
     return TRUE ;
   }
-  else config = (CONFIG *)GetProp(hDlg,"CONFIG") ;
+  else config = (CONFIG *)GetProp(hDlg, TEXT("CONFIG")) ;
 
   switch(uMsg)
   {
@@ -110,7 +128,7 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     break ;
 
   case WM_DESTROY:
-    RemoveProp(hDlg,"CONFIG") ;
+    RemoveProp(hDlg, TEXT("CONFIG")) ;
     return TRUE ;
 
   default:
@@ -130,7 +148,7 @@ HPROPSHEETPAGE CreateConfigPage2(HINSTANCE hInst, CONFIG *config)
   psp.pszIcon = NULL;
   psp.pfnDlgProc = dlgProc;
   psp.pszTitle = NULL;
-  psp.lParam = (long)config ;
+  psp.lParam = (LPARAM)config ;
   
   return CreatePropertySheetPage(&psp) ;
 }

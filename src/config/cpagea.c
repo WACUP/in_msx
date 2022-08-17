@@ -1,8 +1,6 @@
 #include <windows.h>
 #include "config.h"
 
-static char *text = IN_MSX_ABOUT;
-
 static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   CONFIG *config ;
@@ -10,11 +8,11 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
   if(uMsg == WM_INITDIALOG)
   {
     config = ((CONFIG *)((LPPROPSHEETPAGE)lParam)->lParam) ;
-    SetProp(hDlg,"CONFIG",config) ;
-    SetWindowText(GetDlgItem(hDlg,IDC_COPYRIGHT),text);
+    SetProp(hDlg, TEXT("CONFIG"),config) ;
+    SetDlgItemText(hDlg,IDC_COPYRIGHT,TEXT(IN_MSX_ABOUT));
     return TRUE ;
   }
-  else config = (CONFIG *)GetProp(hDlg,"CONFIG") ;
+  else config = (CONFIG *)GetProp(hDlg, TEXT("CONFIG")) ;
 
   switch(uMsg)
   {
@@ -22,7 +20,7 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return TRUE ;
 
   case WM_DESTROY:
-    RemoveProp(hDlg,"CONFIG");
+    RemoveProp(hDlg, TEXT("CONFIG"));
     return TRUE ;
 
   default:

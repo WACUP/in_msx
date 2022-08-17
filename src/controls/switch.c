@@ -4,12 +4,12 @@
 #include <crtdbg.h>
 #include "control.h"
 
-static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   switch(uMsg)
   {
   case WM_SETTEXT:
-    return SendMessage(GetDlgItem(hDlg,IDC_SWITCH_TITLE), uMsg, wParam, lParam) ;
+    return SendDlgItemMessage(hDlg, IDC_SWITCH_TITLE, uMsg, wParam, lParam) ;
 
   case WM_COMMAND:
     if(HIWORD(wParam)==BN_CLICKED)
@@ -21,9 +21,9 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     break ;
 
   case WM_ENABLE:
-    EnableWindow(GetDlgItem(hDlg,IDC_SWITCH_ON), wParam) ;
-    EnableWindow(GetDlgItem(hDlg,IDC_SWITCH_OFF), wParam) ;
-    EnableWindow(GetDlgItem(hDlg,IDC_SWITCH_TITLE), wParam) ;
+    EnableControl(hDlg, IDC_SWITCH_ON, !!wParam) ;
+    EnableControl(hDlg, IDC_SWITCH_OFF, !!wParam) ;
+    EnableControl(hDlg, IDC_SWITCH_TITLE, !!wParam) ;
     return TRUE ;
 
   case WM_USER:
@@ -56,7 +56,7 @@ HWND CreateSwitchControl(HINSTANCE hInst, HWND hWndParent, char *title)
 {
   HWND hwnd ;
   hwnd = CreateDialog(hInst, MAKEINTRESOURCE(IDD_SWITCH), hWndParent, dlgProc) ;
-  SetWindowText(hwnd, title) ; 
+  SetWindowTextA(hwnd, title) ; 
   return hwnd ; 
 }
 

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <malloc.h>
 #include <windows.h>
 #include <assert.h>
 #include "msxplug.h"
@@ -126,9 +127,9 @@ static void restrict_sizing(WPARAM wParam, LPARAM lParam, int min_w, int min_h, 
   }
 }
 
-static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  OPTDLG *__this = (OPTDLG *)GetProp(hDlg, "OPT") ;
+  OPTDLG *__this = (OPTDLG *)GetProp(hDlg, TEXT("OPT")) ;
   char tmp[81];
   RECT rect, crect;
   PAINTSTRUCT ps;
@@ -141,7 +142,7 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     strncpy(tmp,getLyrics(__this),80);  
     GetClientRect(hDlg,&rect);
     FillRect(__this->hDC, &rect, (HBRUSH)GetStockObject(WHITE_BRUSH));
-    TextOut(__this->hDC, 4, 4, getLyrics(__this), strlen(tmp));
+    TextOutA(__this->hDC, 4, 4, getLyrics(__this), (int)strlen(tmp));
     InvalidateRect(hDlg,NULL,FALSE);
     return TRUE;
 
@@ -159,17 +160,15 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     /*
     if(LOWORD(wParam) == IDM_CHOOSEFONT)
     {
-      LOGFONT lf;
-      CHOOSEFONT cf;
-
-      memset(&cf, 0, sizeof(CHOOSEFONT));
+      LOGFONT lf = {0};
+      CHOOSEFONT cf = {0};
       cf.lStructSize = sizeof(CHOOSEFONT);
       cf.hwndOwner = hDlg;
       cf.lpLogFont = &lf;
       cf.Flags = CF_SCREENFONTS | CF_EFFECTS;
       cf.rgbColors = RGB(0, 0, 0);
       cf.nFontType = SCREEN_FONTTYPE;
-      if(ChooseFont(&cf))
+      if(PickFont(&cf))
       {
         if(__this->hFont)
           DeleteObject((HGDIOBJ)__this->hFont);
@@ -219,7 +218,7 @@ void OPTDLG_close(OPTDLG *__this)
   if(__this->dialog)
   {
     KillTimer(__this->dialog, 1);
-    RemoveProp(__this->dialog, "INFO") ;
+    RemoveProp(__this->dialog, TEXT("INFO")) ;
     DestroyWindow(__this->dialog) ;
     __this->dialog = NULL ;
  
@@ -241,7 +240,7 @@ void OPTDLG_open(OPTDLG *__this, HWND hParent, HINSTANCE hInst)
     RECT rect;
     __this->dialog = CreateDialog(hInst, MAKEINTRESOURCE(IDD_OPTDLG), hParent, dlgProc ) ;
     assert(__this->dialog) ;
-    SetProp(__this->dialog, "OPT", __this) ;
+    SetProp(__this->dialog, TEXT("OPT"), __this) ;
     SetTimer(__this->dialog, 1, FRAME_PERIOD, NULL) ;
     __this->hDC = CreateCompatibleDC(GetDC(__this->dialog));
     __this->hBitmap = CreateCompatibleBitmap(__this->hDC, 80*10, 128);
@@ -274,6 +273,9 @@ OPTDLG *OPTDLG_new(void)
 
 void OPTDLG_delete(OPTDLG *__this)
 {
+  if (__this)
+  {
   OPTDLG_close(__this) ;
   free(__this) ;
+  }
 }

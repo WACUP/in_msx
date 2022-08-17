@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <windows.h>
+#include <stdlib.h>
 #include <commctrl.h>
+#include <commdlg.h>
 #include <assert.h>
 #include <crtdbg.h>
 
@@ -132,10 +134,10 @@ static void reset_patch(EDIT2413 *edit2413)
 
 static int get_illfilename(HWND hWnd, char *buf, int max, int mode)
 {
-  OPENFILENAME ofn ;
+  OPENFILENAMEA ofn ;
 
-  memset(&ofn,0,sizeof(OPENFILENAME)) ;
-  ofn.lStructSize = sizeof(OPENFILENAME);
+  memset(&ofn,0,sizeof(OPENFILENAMEA)) ;
+  ofn.lStructSize = sizeof(OPENFILENAMEA);
   ofn.hwndOwner = hWnd ;
   ofn.lpstrFilter = "ILL Files(*.ill)\0*.ill\0All Files(*.*)\0*.*\0\0";
   ofn.lpstrFile = buf ;
@@ -144,24 +146,24 @@ static int get_illfilename(HWND hWnd, char *buf, int max, int mode)
   if(mode)
   {
     ofn.Flags = OFN_FILEMUSTEXIST ;
-    return GetOpenFileName(&ofn) ;
+    return GetOpenFileNameA(&ofn) ;
   }
   else
   {
     ofn.Flags = OFN_OVERWRITEPROMPT ;
-    return GetSaveFileName(&ofn) ;
+    return GetSaveFileNameA(&ofn) ;
   }
 }
 
 enum { ITEM_DIR, ITEM_SLOT, ITEM_PATCH } ;
 
-static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   int i ;
   int t, c ;
   char buf[_MAX_PATH]="", dump[16]="", text[256]="" ;
 
-  EDIT2413 *edit2413 = (EDIT2413 *)GetProp(hDlg, "EDIT2413") ;
+  EDIT2413 *edit2413 = (EDIT2413 *)GetProp(hDlg, TEXT("EDIT2413")) ;
 
   switch(uMsg)
   {
@@ -177,10 +179,10 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
       if(edit2413->hParam[i]==(HWND)lParam)
       {
-        write_patch_param(&edit2413->patch[edit2413->cursel], i, wParam) ;
+        write_patch_param(&edit2413->patch[edit2413->cursel], i, (int)wParam) ;
         if(edit2413->opll)
         {
-          write_patch_param(&edit2413->opll->patch[edit2413->cursel], i, wParam) ;
+          write_patch_param(&edit2413->opll->patch[edit2413->cursel], i, (int)wParam) ;
           OPLL_forceRefresh(edit2413->opll) ;
         }
         return TRUE ;
@@ -243,19 +245,19 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         edit2413->cursel = c ;
         update_page(edit2413) ;
         for(i=TL;i<ENDPARAM;i++) ShowWindow(edit2413->hParam[i], SW_SHOW) ;
-        SetWindowText(GetDlgItem(hDlg, IDC_TONEINFO), NULL) ;
+        SetDlgItemTextA(hDlg, IDC_TONEINFO, NULL) ;
         break ;
      
       case ITEM_PATCH:
         for(i=TL;i<ENDPARAM;i++) ShowWindow(edit2413->hParam[i], SW_HIDE) ;
         OPLL_patch2dump(&edit2413->patch[c],(uint8_t *)dump) ;
         for(i=0;i<8;i++) sprintf(text+i*3, " %02X", (unsigned char)dump[i]) ;
-        SetWindowText(GetDlgItem(hDlg, IDC_TONEINFO), text) ;
+        SetDlgItemTextA(hDlg, IDC_TONEINFO, text) ;
         break ;
 
       case ITEM_DIR:
         for(i=TL;i<ENDPARAM;i++) ShowWindow(edit2413->hParam[i], SW_HIDE) ;
-        SetWindowText(GetDlgItem(hDlg, IDC_TONEINFO), NULL) ;
+        SetDlgItemTextA(hDlg, IDC_TONEINFO, NULL) ;
         break ;
       }
                 
@@ -276,7 +278,7 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 struct localTree {
-  char *text ;
+  wchar_t *text ;
   struct localTree *next ;
   struct localTree *has;
   int param ;
@@ -310,51 +312,51 @@ static void init_tree(HWND hTree)
 
   struct localTree inst[16] =
   {
-    {"@00 User",&inst[1],&op[0],MAKELPARAM(ITEM_PATCH,0)} ,
-    {"@01 Violin",&inst[2],&op[2],MAKELPARAM(ITEM_PATCH,2)} , 
-    {"@02 Guitar",&inst[3],&op[4],MAKELPARAM(ITEM_PATCH,4)} ,
-    {"@03 Piano",&inst[4],&op[6],MAKELPARAM(ITEM_PATCH,6)} ,
-    {"@04 Flute",&inst[5],&op[8],MAKELPARAM(ITEM_PATCH,8)} ,
-    {"@05 Clarinet",&inst[6],&op[10],MAKELPARAM(ITEM_PATCH,10)} ,
-    {"@06 Oboe",&inst[7],&op[12],MAKELPARAM(ITEM_PATCH,12)} ,
-    {"@07 Trumpet",&inst[8],&op[14],MAKELPARAM(ITEM_PATCH,14)} ,
-    {"@08 Organ",&inst[9],&op[16],MAKELPARAM(ITEM_PATCH,16)} ,
-    {"@09 Horn",&inst[10],&op[18],MAKELPARAM(ITEM_PATCH,18)} ,
-    {"@10 Synth",&inst[11],&op[20],MAKELPARAM(ITEM_PATCH,20)} ,
-    {"@11 Harpsicode",&inst[12],&op[22],MAKELPARAM(ITEM_PATCH,22)} ,
-    {"@12 Vibraphone",&inst[13],&op[24],MAKELPARAM(ITEM_PATCH,24)} ,
-    {"@13 Synth Bass",&inst[14],&op[26],MAKELPARAM(ITEM_PATCH,26)} ,
-    {"@14 Wood Bass",&inst[15],&op[28],MAKELPARAM(ITEM_PATCH,28)} ,
-    {"@15 Elec Bass",NULL,&op[30],MAKELPARAM(ITEM_PATCH,30)}
+    {TEXT("@00 User"),&inst[1],&op[0],MAKELPARAM(ITEM_PATCH,0)} ,
+    {TEXT("@01 Violin"),&inst[2],&op[2],MAKELPARAM(ITEM_PATCH,2)} ,
+    {TEXT("@02 Guitar"),&inst[3],&op[4],MAKELPARAM(ITEM_PATCH,4)} ,
+    {TEXT("@03 Piano"),&inst[4],&op[6],MAKELPARAM(ITEM_PATCH,6)} ,
+    {TEXT("@04 Flute"),&inst[5],&op[8],MAKELPARAM(ITEM_PATCH,8)} ,
+    {TEXT("@05 Clarinet"),&inst[6],&op[10],MAKELPARAM(ITEM_PATCH,10)} ,
+    {TEXT("@06 Oboe"),&inst[7],&op[12],MAKELPARAM(ITEM_PATCH,12)} ,
+    {TEXT("@07 Trumpet"),&inst[8],&op[14],MAKELPARAM(ITEM_PATCH,14)} ,
+    {TEXT("@08 Organ"),&inst[9],&op[16],MAKELPARAM(ITEM_PATCH,16)} ,
+    {TEXT("@09 Horn"),&inst[10],&op[18],MAKELPARAM(ITEM_PATCH,18)} ,
+    {TEXT("@10 Synth"),&inst[11],&op[20],MAKELPARAM(ITEM_PATCH,20)} ,
+    {TEXT("@11 Harpsicode"),&inst[12],&op[22],MAKELPARAM(ITEM_PATCH,22)} ,
+    {TEXT("@12 Vibraphone"),&inst[13],&op[24],MAKELPARAM(ITEM_PATCH,24)} ,
+    {TEXT("@13 Synth Bass"),&inst[14],&op[26],MAKELPARAM(ITEM_PATCH,26)} ,
+    {TEXT("@14 Wood Bass"),&inst[15],&op[28],MAKELPARAM(ITEM_PATCH,28)} ,
+    {TEXT("@15 Elec Bass"),NULL,&op[30],MAKELPARAM(ITEM_PATCH,30)}
   } ;
 
   struct localTree rythm[16] = 
   {
-    {"Bass Drum",&rythm[1],&op[32],MAKELPARAM(ITEM_PATCH,32)},
-    {"Hi-Hat&Snare",&rythm[2],&rythm[3],MAKELPARAM(ITEM_PATCH,34)},
-    {"Tom-Tom&Cymbal",NULL,&rythm[5],MAKELPARAM(ITEM_PATCH,36)},
-    {"Hi-Hat",&rythm[4],NULL,MAKELPARAM(ITEM_SLOT,34)},
-    {"Snare Drum",NULL,NULL,MAKELPARAM(ITEM_SLOT,35)},
-    {"Tom-Tom",&rythm[6],NULL,MAKELPARAM(ITEM_SLOT,36)},
-    {"Cymbal",NULL,NULL,MAKELPARAM(ITEM_SLOT,37)}
+    {TEXT("Bass Drum"),&rythm[1],&op[32],MAKELPARAM(ITEM_PATCH,32)},
+    {TEXT("Hi-Hat&Snare"),&rythm[2],&rythm[3],MAKELPARAM(ITEM_PATCH,34)},
+    {TEXT("Tom-Tom&Cymbal"),NULL,&rythm[5],MAKELPARAM(ITEM_PATCH,36)},
+    {TEXT("Hi-Hat"),&rythm[4],NULL,MAKELPARAM(ITEM_SLOT,34)},
+    {TEXT("Snare Drum"),NULL,NULL,MAKELPARAM(ITEM_SLOT,35)},
+    {TEXT("Tom-Tom"),&rythm[6],NULL,MAKELPARAM(ITEM_SLOT,36)},
+    {TEXT("Cymbal"),NULL,NULL,MAKELPARAM(ITEM_SLOT,37)}
   } ;
 
   struct localTree root[2] = 
   {
-    {"Melodic Instrument",&root[1],&inst[0],MAKELPARAM(ITEM_DIR,0)},
-    {"Percussive Instrument",NULL,&rythm[0],MAKELPARAM(ITEM_DIR,0)},
+    {TEXT("Melodic Instrument"),&root[1],&inst[0],MAKELPARAM(ITEM_DIR,0)},
+    {TEXT("Percussive Instrument"),NULL,&rythm[0],MAKELPARAM(ITEM_DIR,0)},
   } ;
 
   for(i=0;i<34;i++)
   {
     if(i&1)
     {
-      op[i].text = "Carrior" ;
+      op[i].text = TEXT("Carrior") ;
       op[i].next = NULL ;
     }
     else
     {
-      op[i].text = "Modulator" ;
+      op[i].text = TEXT("Modulator") ;
       op[i].next = &op[i+1] ;
     }
     op[i].param = MAKELPARAM(ITEM_SLOT,i) ;
@@ -392,7 +394,7 @@ void EDIT2413_open(EDIT2413 *edit2413, HWND hwndParent, HINSTANCE hInst)
       SetWindowPos(GetDlgItem(edit2413->hMain,IDC_LOGO),NULL,0,0,57*2,23*2,SWP_NOMOVE) ;
       edit2413->cursel = 0 ;
 
-      SetProp(edit2413->hMain, "EDIT2413", edit2413) ;
+      SetProp(edit2413->hMain, TEXT("EDIT2413"), edit2413) ;
 
       GetClientRect(GetDlgItem(edit2413->hMain,IDC_VOICETREE), &rect) ;
       x = rect.right + 8 ;
@@ -427,7 +429,7 @@ void EDIT2413_close(EDIT2413 *edit2413)
   if(edit2413)
   {
     KillTimer(edit2413->hMain,1) ;
-    RemoveProp(edit2413->hMain, "EDIT2413") ;
+    RemoveProp(edit2413->hMain, TEXT("EDIT2413")) ;
     DestroyWindow(edit2413->hMain) ;
     edit2413->hMain = NULL;
   }

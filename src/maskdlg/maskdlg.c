@@ -107,10 +107,10 @@ static void update(MASKDLG *dlg, BOOL b)
   }
 }
 
-static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   int i;
-  MASKDLG *dlg = (MASKDLG *)GetProp(hDlg, "INFO") ;
+  MASKDLG *dlg = (MASKDLG *)GetProp(hDlg, TEXT("INFO")) ;
 
   switch (uMsg)
 	{
@@ -168,7 +168,7 @@ void MASKDLG_close(MASKDLG *dlg)
 {
   if(dlg->dialog)
   {
-    RemoveProp(dlg->dialog, "INFO") ;
+    RemoveProp(dlg->dialog, TEXT("INFO")) ;
     DestroyWindow(dlg->dialog) ;
     dlg->dialog = NULL ;
   }
@@ -180,7 +180,7 @@ void MASKDLG_open(MASKDLG *dlg, HWND hParent, HINSTANCE hInst)
   {
     dlg->dialog = CreateDialog(hInst, MAKEINTRESOURCE(IDD_MASKDLG), hParent, dlgProc ) ;
     assert(dlg->dialog) ;
-    SetProp(dlg->dialog, "INFO", dlg) ;
+    SetProp(dlg->dialog, TEXT("INFO"), dlg) ;
     update(dlg,FALSE);
   }
   ShowWindow(dlg->dialog, SW_SHOW) ;
@@ -200,6 +200,9 @@ MASKDLG *MASKDLG_new(CONFIG *cfg)
 
 void MASKDLG_delete(MASKDLG *dlg)
 {
+  if (dlg)
+  {
   MASKDLG_close(dlg) ;
   free(dlg) ;
+  }
 }

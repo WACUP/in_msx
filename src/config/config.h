@@ -2,6 +2,8 @@
 #define _CONFIG_H_
 
 #include <windows.h>
+#include <stdlib.h>
+#include <prsht.h>
 #include <crtdbg.h>
 #include "rc/resource.h"
 #include "in_msx.h"
@@ -46,7 +48,9 @@ typedef struct
 
   char file_name[_MAX_PATH+16];
   char section_name[32] ;
+#ifndef WACUP_BUILD
   char extensions[256] ;
+#endif
   char ill_path[_MAX_PATH] ;
 
   int mgsdrv_loaded ;
@@ -74,8 +78,10 @@ typedef struct
   int mode_update ;
   int quality_update ;
   int refresh_mixer ;
+#ifndef WACUP_BUILD
   int need_to_restart ;
   int iswinamp;
+#endif
 
   CRITICAL_SECTION cso;
 
@@ -114,7 +120,11 @@ HPROPSHEETPAGE CreateConfigPage5(HINSTANCE hInst, CONFIG *config) ;
 HPROPSHEETPAGE CreateConfigPage6(HINSTANCE hInst, CONFIG *config) ;
 HPROPSHEETPAGE CreateConfigPage7(HINSTANCE hInst, CONFIG *config) ;
 HPROPSHEETPAGE CreateConfigPage8(HINSTANCE hInst, CONFIG *config) ;
+#ifndef WACUP_BUILD
 HPROPSHEETPAGE CreateConfigPageA(HINSTANCE hInst, CONFIG *config) ;
+#else
+__declspec(dllimport) void EnableControl(HWND hwnd, const UINT id, const BOOL on_off);
+#endif
 
 #ifdef __cplusplus
 }

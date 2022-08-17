@@ -2,6 +2,15 @@
 // Microsoft Visual C++ generated include file.
 // Used by resource.rc
 //
+#define IDS_ABOUT_TITLE                 0
+#define IDS_ABOUT_TEXT                  1
+#define IDS_KSS_FAMILY_STRING           2
+#define IDS_MGS_FAMILY_STRING           3
+#define IDS_BGM_FAMILY_STRING           4
+#define IDS_MBM_FAMILY_STRING           5
+#define IDS_MPK_FAMILY_STRING           6
+#define IDS_OPX_FAMILY_STRING           7
+#define IDS_BGR_FAMILY_STRING           8
 #define IDD_CFG_PAGE1                   102
 #define IDD_CFG_PAGE5                   105
 #define IDD_ABOUT                       111
@@ -223,12 +232,13 @@
 #define IDM_CONFIG                      40004
 #define IDM_VEDIT                       40005
 #define IDM_OPTDLG                      40006
+#define IDS_PLUGIN_NAME                 65534
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        180
+#define _APS_NEXT_RESOURCE_VALUE        181
 #define _APS_NEXT_COMMAND_VALUE         40008
 #define _APS_NEXT_CONTROL_VALUE         1298
 #define _APS_NEXT_SYMED_VALUE           101

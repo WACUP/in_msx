@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <commdlg.h>
 #include "config.h"
 
 static void update_page(HWND hDlg, CONFIG *config)
@@ -25,17 +26,17 @@ static void update_config(HWND hDlg, CONFIG *config)
 
 static int get_driver_filename(HWND hWnd, char *buf, int max)
 {
-  OPENFILENAME ofn ;
+  OPENFILENAMEA ofn ;
 
-  memset(&ofn,0,sizeof(OPENFILENAME)) ;
-  ofn.lStructSize = sizeof(OPENFILENAME);
+  memset(&ofn,0,sizeof(OPENFILENAMEA)) ;
+  ofn.lStructSize = sizeof(OPENFILENAMEA);
   ofn.hwndOwner = hWnd ;
   ofn.lpstrFilter = "All Files(*.*)\0*.*\0\0";
   ofn.Flags = OFN_FILEMUSTEXIST ; 
   ofn.lpstrFile = buf ;
   ofn.nMaxFile = max ;
 
-  return GetOpenFileName(&ofn) ;
+  return GetOpenFileNameA(&ofn) ;
 }
 
 static int set_driver_filename(HWND hDlg, UINT uIdc,  char *drvpath)
@@ -46,8 +47,7 @@ static int set_driver_filename(HWND hDlg, UINT uIdc,  char *drvpath)
   buf[_MAX_PATH-1]='\0' ;
   if(get_driver_filename(hDlg, buf, _MAX_PATH))
   {
-    HWND hWnd = GetDlgItem(hDlg, uIdc) ;
-    SetWindowText(hWnd,buf);
+    SetDlgItemTextA(hDlg, uIdc, buf);
     strncpy(drvpath, buf,_MAX_PATH) ;
     drvpath[_MAX_PATH-1]='\0' ;
     return 1 ;
@@ -122,23 +122,23 @@ static BOOL bn_clicked_event(HWND hDlg, UINT uIdc, CONFIG *config)
   }
 }
 
-static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   CONFIG *config ;
 
   if(uMsg == WM_INITDIALOG)
   {
     config = ((CONFIG *)((LPPROPSHEETPAGE)lParam)->lParam) ;
-    SetProp(hDlg,"CONFIG",config) ;
+    SetProp(hDlg, TEXT("CONFIG"),config) ;
     update_page(hDlg, config) ;
     return TRUE ;
   }
-  else config = (CONFIG *)GetProp(hDlg,"CONFIG") ;
+  else config = (CONFIG *)GetProp(hDlg, TEXT("CONFIG")) ;
 
   switch(uMsg)
   {
   case WM_DESTROY:
-    RemoveProp(hDlg,"CONFIG") ;
+    RemoveProp(hDlg, TEXT("CONFIG")) ;
     return TRUE ;
 
   case WM_COMMAND:
@@ -163,7 +163,7 @@ HPROPSHEETPAGE CreateConfigPage4(HINSTANCE hInst, CONFIG *config)
   psp.pszIcon = NULL;
   psp.pfnDlgProc = dlgProc;
   psp.pszTitle = NULL;
-  psp.lParam = (long)config ;
+  psp.lParam = (LPARAM)config ;
   
   return CreatePropertySheetPage(&psp) ;
 }

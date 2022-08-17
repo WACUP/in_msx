@@ -14,23 +14,23 @@ int CALLBACK SHBrowseProc(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
     return 0;
 }
 
-UINT GetOpenFolderName( HWND hWnd, LPCTSTR lpszDefaultFolder, char *buf, int buflen )
+UINT GetOpenFolderName( HWND hWnd, LPCSTR lpszDefaultFolder, char *buf, int buflen )
 {
   LPITEMIDLIST  pIDL;
-  BROWSEINFO  bi;
+  BROWSEINFOA  bi;
   char  szSelectedFolder[MAX_PATH];
 
-  ZeroMemory( &bi, sizeof( BROWSEINFO ));
+  ZeroMemory( &bi, sizeof( BROWSEINFOA ));
   bi.hwndOwner = hWnd;
   bi.lpfn   = SHBrowseProc;
   bi.ulFlags = BIF_RETURNONLYFSDIRS;
   bi.lParam = (LPARAM)lpszDefaultFolder;
   bi.lpszTitle = "Select a folder";
 
-  pIDL = SHBrowseForFolder( &bi );
+  pIDL = SHBrowseForFolderA( &bi );
   if( pIDL )
   {
-    SHGetPathFromIDList( pIDL, szSelectedFolder );
+    SHGetPathFromIDListA( pIDL, szSelectedFolder );
     strncpy(buf, szSelectedFolder, buflen);
     buf[buflen-1] = '\0';
     CoTaskMemFree( pIDL );
@@ -61,18 +61,18 @@ static void update_config(HWND hDlg, CONFIG *config)
   CONFIG_rd_checkbtn(config, hDlg, "EXPAND_INFO", IDC_EXPAND_INFO);
 }
 
-static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   CONFIG *config ;
 
   if(uMsg == WM_INITDIALOG)
   {
     config = ((CONFIG *)((LPPROPSHEETPAGE)lParam)->lParam) ;
-    SetProp(hDlg,"CONFIG",config) ;
+    SetProp(hDlg, TEXT("CONFIG"),config) ;
     update_page(hDlg, config) ;
     return TRUE ;
   }
-  else config = (CONFIG *)GetProp(hDlg,"CONFIG") ;
+  else config = (CONFIG *)GetProp(hDlg, TEXT("CONFIG")) ;
 
   switch(uMsg)
   {
@@ -80,9 +80,9 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     if(HIWORD(wParam)==BN_CLICKED&&LOWORD(wParam)==IDC_MBKBTN)
     {
       char szFolder[MAX_PATH];
-      GetWindowText(GetDlgItem(hDlg,IDC_MBKPATH),szFolder,MAX_PATH);
+      GetWindowTextA(GetDlgItem(hDlg,IDC_MBKPATH),szFolder,MAX_PATH);
       if(GetOpenFolderName(hDlg, szFolder, szFolder, MAX_PATH)==IDOK)
-        SetWindowText(GetDlgItem(hDlg,IDC_MBKPATH),szFolder);
+        SetDlgItemTextA(hDlg,IDC_MBKPATH,szFolder);
       PropSheet_Changed(config->dialog, hDlg);
       return TRUE;      
     }
@@ -111,7 +111,7 @@ static BOOL CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     break ;
 
   case WM_DESTROY:
-    RemoveProp(hDlg,"CONFIG") ;
+    RemoveProp(hDlg, TEXT("CONFIG")) ;
     return TRUE ;
 
   default:
@@ -131,7 +131,7 @@ HPROPSHEETPAGE CreateConfigPage8(HINSTANCE hInst, CONFIG *config)
   psp.pszIcon = NULL;
   psp.pfnDlgProc = dlgProc;
   psp.pszTitle = NULL;
-  psp.lParam = (long)config ;
+  psp.lParam = (LPARAM)config ;
   
   return CreatePropertySheetPage(&psp) ;
 }
