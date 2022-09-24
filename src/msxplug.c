@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <commctrl.h>
+#include <strsafe.h>
 #if defined(_DEBUG)
 #include <crtdbg.h>
 #define _CRTDBG_MAP_ALLOC 
@@ -17,8 +18,8 @@
 #include <../loader/loader/utils.h>
 
 /* Message Box */
-#define MBOX_ERR(M,T) MessageBox(NULL, TEXT(M), TEXT(T), MB_OK|MB_ICONERROR);
-#define MBOX_WARN(M,T) MessageBox(NULL, TEXT(M), TEXT(T), MB_OK|MB_ICONWARNING);
+#define MBOX_ERR(M,T) MessageBox(NULL, TEXT(M), TEXT(T), MB_ICONERROR);
+#define MBOX_WARN(M,T) MessageBox(NULL, TEXT(M), TEXT(T), MB_ICONWARNING);
 
 extern BOOL force_mono(void);
 
@@ -126,7 +127,7 @@ static CRITICAL_SECTION cso ;
 {
   char buf[256] ;
 
-  itoa(i,buf,255) ;
+  I2AStr(i,buf,ARRAYSIZE(buf)) ;
   MessageBox(NULL,buf,title,MB_OK) ;
 }*/
 
@@ -623,11 +624,11 @@ static int play_setup(const char *fn)
   {
     goto error_exit;
   }
-  strncpy(current_file,item->filename,_MAX_PATH) ;
+  StringCchCopyA(current_file,_MAX_PATH,item->filename) ;
   current_file[_MAX_PATH-1] = '\0' ;
   if(current_kss->title[0]=='\0')
   {
-    strncpy((char *)current_kss->title, item->filename, KSS_TITLE_MAX) ;
+    StringCchCopyA((char *)current_kss->title, KSS_TITLE_MAX, item->filename) ;
     current_kss->title[KSS_TITLE_MAX-1] = '\0' ;
   }
 
@@ -690,7 +691,7 @@ static int play_setup(const char *fn)
     if(item->time_in_ms>=0) play_time_unknown = 0 ;
     if(item->title)
     {
-      strncpy((char *)current_kss->title, item->title, KSS_TITLE_MAX) ;
+      StringCchCopyA((char *)current_kss->title, KSS_TITLE_MAX, item->title) ;
       current_kss->title[KSS_TITLE_MAX-1] = '\0' ;
     }
     song = item->song ;
@@ -1020,7 +1021,7 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
     wchar_t* wtitle = ConvertANSI((char*)current_kss->title, CP_ACP);
     if (wtitle)
     {
-        wcsncpy(title, wtitle, GETFILEINFO_TITLE_LENGTH);
+        StringCchCopy(title, GETFILEINFO_TITLE_LENGTH, wtitle);
         AutoCharDupFree(wtitle);
     }
 #endif
@@ -1059,7 +1060,7 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
       wchar_t* wtitle = ConvertANSI(item->title, CP_ACP);
       if (wtitle)
       {
-          wcsncpy(title, wtitle, GETFILEINFO_TITLE_LENGTH);
+          StringCchCopy(title, GETFILEINFO_TITLE_LENGTH, wtitle);
           AutoCharDupFree(wtitle);
       }
 #endif
@@ -1077,7 +1078,7 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
         wchar_t* wtitle = ConvertANSI(item->filename, CP_ACP);
         if (wtitle)
         {
-            wcsncpy(title, wtitle, GETFILEINFO_TITLE_LENGTH);
+            StringCchCopy(title, GETFILEINFO_TITLE_LENGTH, wtitle);
             AutoCharDupFree(wtitle);
         }
 #endif
@@ -1086,7 +1087,7 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
       {
         if(kss->title[0]=='\0')
         {
-          strncpy((char *)kss->title, item->filename, KSS_TITLE_MAX) ;
+          StringCchCopyA((char *)kss->title, KSS_TITLE_MAX, item->filename) ;
           kss->title[KSS_TITLE_MAX-1] = '\0' ;
         }
 
@@ -1097,7 +1098,7 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
         wchar_t* wtitle = ConvertANSI((char*)kss->title, CP_ACP);
         if (wtitle)
         {
-            wcsncpy(title, wtitle, GETFILEINFO_TITLE_LENGTH);
+            StringCchCopy(title, GETFILEINFO_TITLE_LENGTH, wtitle);
             AutoCharDupFree(wtitle);
         }
 #endif

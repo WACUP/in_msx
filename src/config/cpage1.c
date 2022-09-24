@@ -52,10 +52,10 @@ static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
       {
         if (config->iswinamp)
           MessageBox(hDlg, TEXT("New settings will be enabled after restart Winamp."),
-			  TEXT("Notice"),MB_OK|MB_ICONEXCLAMATION) ;
+			  TEXT("Notice"),MB_ICONEXCLAMATION) ;
         else
           MessageBox(hDlg, TEXT("New settings will be enabled after reload plugin."),
-			  TEXT("Notice"),MB_OK|MB_ICONEXCLAMATION) ;
+			  TEXT("Notice"),MB_ICONEXCLAMATION) ;
         config->need_to_restart=0;
       }
 #endif
@@ -87,5 +87,5 @@ HPROPSHEETPAGE CreateConfigPage1(HINSTANCE hInst, CONFIG *config)
   psp.pszTitle = NULL;
   psp.lParam = (LPARAM)config ;
   
-  return CreatePropertySheetPage(&psp) ;
+  return CreatePropSheetPage(&psp) ;
 }

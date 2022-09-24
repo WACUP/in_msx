@@ -24,7 +24,7 @@ static void update_config(HWND hDlg, CONFIG *config)
   CONFIG_rd_textbox(config, hDlg, "MBMDRV", IDC_MBMDRV_PATH);
 }
 
-static int get_driver_filename(HWND hWnd, char *buf, int max)
+/*static int get_driver_filename(HWND hWnd, char *buf, int max)
 {
   OPENFILENAMEA ofn ;
 
@@ -37,19 +37,19 @@ static int get_driver_filename(HWND hWnd, char *buf, int max)
   ofn.nMaxFile = max ;
 
   return GetOpenFileNameA(&ofn) ;
-}
+}/*/int get_driver_filename(HWND hWnd, char* buf, int max);/**/
 
 static int set_driver_filename(HWND hDlg, UINT uIdc,  char *drvpath)
 {
   char buf[_MAX_PATH] ;
 
-  strncpy(buf, drvpath, _MAX_PATH) ;
-  buf[_MAX_PATH-1]='\0' ;
+  StringCchCopyA(buf, _MAX_PATH, drvpath) ;
+  //buf[_MAX_PATH-1]='\0' ;
   if(get_driver_filename(hDlg, buf, _MAX_PATH))
   {
     SetDlgItemTextA(hDlg, uIdc, buf);
-    strncpy(drvpath, buf,_MAX_PATH) ;
-    drvpath[_MAX_PATH-1]='\0' ;
+    StringCchCopyA(drvpath,_MAX_PATH, buf) ;
+    //drvpath[_MAX_PATH-1]='\0' ;
     return 1 ;
   }
   else return 0 ;
@@ -165,5 +165,5 @@ HPROPSHEETPAGE CreateConfigPage4(HINSTANCE hInst, CONFIG *config)
   psp.pszTitle = NULL;
   psp.lParam = (LPARAM)config ;
   
-  return CreatePropertySheetPage(&psp) ;
+  return CreatePropSheetPage(&psp) ;
 }

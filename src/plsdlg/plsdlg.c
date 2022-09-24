@@ -109,7 +109,7 @@ static void update_item(PLSDLG *plsdlg, PLSITEM *item)
   else PLSITEM_set_title(item,NULL) ;
 
   if(GetWindowTextA(GetDlgItem(plsdlg->hDialog, IDC_SONG), buf, 8))
-    item->song = atoi(buf) ; 
+    item->song = AStr2I(buf) ;
   else item->song = 0 ;
   
   /*
@@ -130,7 +130,7 @@ static void update_item(PLSDLG *plsdlg, PLSITEM *item)
   else item->fade_in_ms = -1 ;
 
   if(GetWindowTextA(GetDlgItem(plsdlg->hDialog, IDC_LOOP), buf, 8))
-    item->loop_num = atoi(buf) ; 
+    item->loop_num = AStr2I(buf) ;
   else item->loop_num = -1 ;
 
   for(i=0;i<4;i++)
@@ -198,7 +198,7 @@ static void disable_volbox(PLSDLG *plsdlg, int i)
   SetWindowText(GetDlgItem(plsdlg->hDialog, lbldb[i]), TEXT("")) ;
 }
 
-static int get_filename(HWND hWnd, char *buf, int max)
+/*static int get_filename(HWND hWnd, char *buf, int max)
 {
   OPENFILENAMEA ofn ;
 
@@ -211,7 +211,7 @@ static int get_filename(HWND hWnd, char *buf, int max)
   ofn.nMaxFile = max ;
 
   return GetSaveFileNameA(&ofn) ;
-}
+}/*/extern int get_filename(HWND hWnd, char* buf, int max);/**/
 
 static void save_pls(PLSDLG *plsdlg)
 {

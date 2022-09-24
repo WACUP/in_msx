@@ -11,6 +11,10 @@
 #include <ctype.h>
 #endif
 
+#include <windows.h>
+#define WA_UTILS_SIMPLE
+#include <../../loader/loader/utils.h>
+
 #include "ppls.h"
 #include "sstream.h"
 #define BLK_SIZE (32)
@@ -127,8 +131,8 @@ static int get_number(SST *sst, int default_value)
       c = SST_getc(sst) ;
       if(is_digit(c)) 
         ret = (ret<<4) + c - '0' ;
-      else if('a'<=tolower(c)&&tolower(c)<='f') 
-        ret = (ret<<4) + tolower(c) - 'a' + 10 ;
+      else if('a'<=CharToLowerA(c)&&CharToLowerA(c)<='f') 
+        ret = (ret<<4) + CharToLowerA(c) - 'a' + 10 ;
       else
         break ;
       raw++ ;

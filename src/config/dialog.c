@@ -5,6 +5,8 @@
 #include "config.h"
 #include "pandlg/pandlg.h"
 
+__declspec(dllimport) const INT_PTR CreatePropSheets(LPCPROPSHEETHEADERW lpcpsw);
+
 static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   INT_PTR ret;
@@ -89,7 +91,7 @@ void CONFIG_dialog_show(CONFIG *config, HWND hWnd, HINSTANCE hInst, int page)
 #endif
     psh.phpage = hpsp;
 
-    config->dialog = (HWND)PropertySheet(&psh) ;
+    config->dialog = (HWND)CreatePropSheets(&psh) ;
     SetProp(config->dialog, TEXT("CONFIG"), config) ;
     config->dlgProc = (DLGPROC)SetWindowLongPtr(config->dialog,GWLP_WNDPROC,(LONG_PTR)dlgProc) ;
     if(!config->pandlg) config->pandlg = PANDLG_new(hInst, config);

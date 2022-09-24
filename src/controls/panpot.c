@@ -3,6 +3,8 @@
 #include <malloc.h>
 #include <crtdbg.h>
 #include "control.h"
+#define WA_UTILS_SIMPLE
+#include <../../loader/loader/utils.h>
 
 static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -27,7 +29,7 @@ static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 
   case WM_VSCROLL:
   case WM_HSCROLL:
-    if((HWND)lParam == hSlider)
+    if(HWNDIsCtrl(lParam, hDlg, IDC_SLIDER))
     {
       pos = (int)SendMessage(hSlider, TBM_GETPOS, 0, 0) ;
       SendMessage(GetParent(hDlg), WM_HSCROLL, pos, (LPARAM)hDlg) ; 

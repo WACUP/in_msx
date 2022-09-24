@@ -26,7 +26,7 @@ static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 		return TRUE;
 
   case WM_HSCROLL:
-    if((HWND)(lParam) == GetDlgItem(hDlg,IDC_SLIDER))
+    if(HWNDIsCtrl(lParam, hDlg, IDC_SLIDER))
     {
       char buf[16];
       int pos = (int)SendMessage((HWND)(lParam), TBM_GETPOS, 0, 0);

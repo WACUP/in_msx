@@ -2,6 +2,7 @@
 #define _CONFIG_H_
 
 #include <windows.h>
+#include <strsafe.h>
 #include <stdlib.h>
 #include <prsht.h>
 #include <crtdbg.h>
@@ -124,6 +125,7 @@ HPROPSHEETPAGE CreateConfigPage8(HINSTANCE hInst, CONFIG *config) ;
 HPROPSHEETPAGE CreateConfigPageA(HINSTANCE hInst, CONFIG *config) ;
 #else
 __declspec(dllimport) void EnableControl(HWND hwnd, const UINT id, const BOOL on_off);
+__declspec(dllimport) HPROPSHEETPAGE CreatePropSheetPage(LPCPROPSHEETPAGEW lpcpspw);
 #endif
 
 #ifdef __cplusplus

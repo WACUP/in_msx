@@ -116,5 +116,5 @@ HPROPSHEETPAGE CreateConfigPage7(HINSTANCE hInst, CONFIG *config)
   psp.pszTitle = NULL;
   psp.lParam = (LPARAM)config ;
   
-  return CreatePropertySheetPage(&psp) ;
+  return CreatePropSheetPage(&psp) ;
 }

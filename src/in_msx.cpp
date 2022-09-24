@@ -4,6 +4,7 @@
 #include <shlobj.h>
 #pragma component(browser, on, references)
 #endif
+#include <commdlg.h>
 #include <commctrl.h>
 #include <strsafe.h>
 #include "in_msx.h"
@@ -80,6 +81,11 @@ extern "C" In_Module plugin =
     IN_INIT_WACUP_END_STRUCT
 };
 
+extern "C" char* safe_strdup(char* str)
+{
+    return plugin.memmgr->sysDupStr(str);
+}
+
 extern "C" BOOL force_mono(void)
 {
     // {B6CB4A7C-A8D0-4c55-8E60-9F7A7A23DA0F}
@@ -138,7 +144,7 @@ int Init(void)
 	wchar_t pluginTitle[256] = { 0 };
 	StringCchPrintfW(pluginTitle, ARRAYSIZE(pluginTitle),
 					 WASABI_API_LNGSTRINGW(IDS_PLUGIN_NAME), PLUGIN_VERSION);
-	plugin.description = (char *)_wcsdup(pluginTitle);
+	plugin.description = (char *)plugin.memmgr->sysDupStr(pluginTitle);
 
     /*preferences = (prefsDlgRecW*)GlobalAlloc(GPTR, sizeof(prefsDlgRecW));
     if (preferences)
@@ -229,18 +235,18 @@ extern "C" __declspec(dllexport) HWND winampAddUnifiedFileInfoPane(int n, const 
 extern "C" __declspec(dllexport) int winampGetExtendedFileInfoW(const wchar_t* fn, const char* data,
                                                                 wchar_t* dest, size_t destlen)
 {
-    if (!_strcmpi(data, "type") ||
-        !_strcmpi(data, "lossless") ||
-        !_strcmpi(data, "streammetadata"))
+    if (SameStrA(data, "type") ||
+        SameStrA(data, "lossless") ||
+        SameStrA(data, "streammetadata"))
     {
         dest[0] = '0';
         dest[1] = 0;
         return 1;
     }
-    else if (!_stricmp(data, "streamgenre") ||
-             !_stricmp(data, "streamtype") ||
-             !_stricmp(data, "streamurl") ||
-             !_stricmp(data, "streamname"))
+    else if (SameStrA(data, "streamgenre") ||
+             SameStrA(data, "streamtype") ||
+             SameStrA(data, "streamurl") ||
+             SameStrA(data, "streamname"))
     {
         return 0;
     }
@@ -250,7 +256,7 @@ extern "C" __declspec(dllexport) int winampGetExtendedFileInfoW(const wchar_t* f
         return 0;
     }
 
-    if (!_strcmpi(data, "family"))
+    if (SameStrA(data, "family"))
     {
         LPCWSTR e = FindPathExtension(fn);
         if (e != NULL)
@@ -258,7 +264,7 @@ extern "C" __declspec(dllexport) int winampGetExtendedFileInfoW(const wchar_t* f
             int pID = -1;
             for (size_t i = 0; i < ARRAYSIZE(extension_list); i++)
             {
-                if (!_wcsicmp(e, extension_list[i].ext))
+                if (SameStr(e, extension_list[i].ext))
                 {
                     pID = extension_list[i].id;
                 }
@@ -278,4 +284,91 @@ extern "C" __declspec(dllexport) int winampGetExtendedFileInfoW(const wchar_t* f
     AutoCharFn _fn(fn);
     return ((pPlugin != NULL) ? pPlugin->GetMetadata(_fn, data, dest, destlen) : 0);*/
     return 0;
+}
+
+extern "C" __declspec(dllimport) BOOL GetFileName(LPOPENFILENAMEW ofn);
+extern "C" __declspec(dllimport) BOOL SaveFileName(LPOPENFILENAMEW ofn);
+
+extern "C" int get_illfilename(HWND hWnd, char* buf, int max, int mode)
+{
+    OPENFILENAMEW ofn = { 0 };
+    wchar_t bufw[_MAX_PATH] = { 0 };
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = hWnd;
+    ofn.lpstrFilter = L"ILL Files(*.ill)\0*.ill\0All Files(*.*)\0*.*\0\0";
+    ofn.lpstrFile = bufw;
+    ofn.nMaxFile = _MAX_PATH;
+
+    if (mode)
+    {
+        ofn.Flags = OFN_FILEMUSTEXIST;
+        const int ret = GetFileName(&ofn);
+        if (ret)
+        {
+            ConvertUnicodeFn(buf, max, bufw, CP_ACP);
+        }
+        return ret;
+    }
+    else
+    {
+        ofn.Flags = OFN_OVERWRITEPROMPT;
+        const int ret = SaveFileName(&ofn);
+        if (ret)
+        {
+            ConvertUnicodeFn(buf, max, bufw, CP_ACP);
+        }
+        return ret;
+    }
+}
+
+extern "C" int get_driver_filename(HWND hWnd, char* buf, int max)
+{
+    OPENFILENAME ofn = { 0 };
+    wchar_t bufw[_MAX_PATH] = { 0 };
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = hWnd;
+    ofn.lpstrFilter = L"All Files(*.*)\0*.*\0\0";
+    ofn.Flags = OFN_FILEMUSTEXIST;
+    ofn.lpstrFile = bufw;
+    ofn.nMaxFile = _MAX_PATH;
+
+    const int ret = GetFileName(&ofn);
+    if (ret)
+    {
+        ConvertUnicodeFn(buf, max, bufw, CP_ACP);
+    }
+    return ret;
+}
+
+extern "C" int get_filename(HWND hWnd, char* buf, int max)
+{
+    OPENFILENAME ofn = { 0 };
+    wchar_t bufw[_MAX_PATH] = { 0 };
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = hWnd;
+    ofn.lpstrFilter = L"Playlist Files(*.pls)\0*.pls\0All Files(*.*)\0*.*\0\0";
+    ofn.Flags = OFN_OVERWRITEPROMPT;
+    ofn.lpstrFile = bufw;
+    ofn.nMaxFile = _MAX_PATH;
+
+    const int ret = SaveFileName(&ofn);
+    if (ret)
+    {
+        ConvertUnicodeFn(buf, max, bufw, CP_ACP);
+    }
+    return ret;
+}
+
+#include <../common/browse.h>
+extern "C" UINT GetOpenFolderName(HWND hWnd, LPCSTR lpszDefaultFolder, char* buf, int buflen)
+{
+    wchar_t  szSelectedFolder[MAX_PATH] = { 0 };
+    ConvertANSIFn(szSelectedFolder, ARRAYSIZE(szSelectedFolder), buf, CP_ACP);
+    //Browse_Folders_SetStyle(BIF_USENEWUI | BIF_NONEWFOLDERBUTTON);
+    if (Browse_Folders(hWnd, szSelectedFolder, ARRAYSIZE(szSelectedFolder), L"Select a folder"))
+    {
+        ConvertUnicodeFn(buf, buflen, szSelectedFolder, CP_ACP);
+        return IDOK;
+    }
+    return IDCANCEL;
 }

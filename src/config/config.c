@@ -18,6 +18,7 @@
 #include <winamp/in2.h>
 #define WA_UTILS_SIMPLE
 #include <../../loader/loader/utils.h>
+#include <../../loader/loader/paths.h>
 
 #ifndef WACUP_BUILD
 #define KSS_DESC "KSS\\KSS DATA (*.KSS)\\"
@@ -30,6 +31,8 @@
 
 In_Module * winampGetInModule2() ;
 
+extern char* safe_strdup(char* str);
+
 enum {STR_PARAM, INT_PARAM} ;
 enum {FMT_NONE, FMT_DEC, FMT_DB, FMT_TIME, FMT_BOOL, FMT_PERC} ; 
 
@@ -37,7 +40,7 @@ static int str2num(char *p, int min, int max)
 {
   int ret ;
 
-  ret = atoi(p) ;
+  ret = AStr2I(p) ;
   if(ret<min) return min ;
   if(max<ret) return max ;
   return ret ;
@@ -65,7 +68,7 @@ static CONFIG_PARAM *new_param(char *name, __int32 min, __int32 max)
     //memset(p,0,sizeof(CONFIG_PARAM));
     /*if(!(p->name=(char *)malloc(strlen(name)+1))) goto Error_Exit;
     strcpy(p->name,name);*/
-    if (!(p->name = _strdup(name))) goto Error_Exit;
+    if (!(p->name = safe_strdup(name))) goto Error_Exit;
     p->max = max;
     p->min = min;
   }
@@ -327,13 +330,13 @@ CONFIG *CONFIG_new(char *path, char *section)
   _add_param_str("MBK_PATH",0,0,"");
   _add_param_str("MBK_DUMMY",0,0,"__DUMMY.MBK");
 
-  _add_param_str("MGSDRV",0,0,PathCombineA(temp,path,PLUGIN_NAME"\\MGSDRV.COM"));
-  _add_param_str("KINROU",0,0,PathCombineA(temp,path,PLUGIN_NAME"\\KINROU5.DRV"));
-  _add_param_str("MPK103",0,0,PathCombineA(temp,path,PLUGIN_NAME"\\MPK103.BIN"));
-  _add_param_str("MPK106",0,0,PathCombineA(temp,path,PLUGIN_NAME"\\MPK.BIN"));
-  _add_param_str("OPXDRV",0,0,PathCombineA(temp,path,PLUGIN_NAME"\\OPX4KSS.BIN"));
-  _add_param_str("FMBIOS",0,0,PathCombineA(temp,path,PLUGIN_NAME"\\FMPAC.ROM"));
-  _add_param_str("MBMDRV",0,0,PathCombineA(temp,path,PLUGIN_NAME"\\MBR143.001"));
+  _add_param_str("MGSDRV",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\MGSDRV.COM"));
+  _add_param_str("KINROU",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\KINROU5.DRV"));
+  _add_param_str("MPK103",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\MPK103.BIN"));
+  _add_param_str("MPK106",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\MPK.BIN"));
+  _add_param_str("OPXDRV",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\OPX4KSS.BIN"));
+  _add_param_str("FMBIOS",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\FMPAC.ROM"));
+  _add_param_str("MBMDRV",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\MBR143.001"));
 
   _add_param_int("TIME_DETECT_MODE",  FMT_DEC, 0,3,1);
   _add_param_int("TIME_DETECT_LEVEL", FMT_DEC, 0,1,0);
@@ -350,10 +353,10 @@ CONFIG *CONFIG_new(char *path, char *section)
 
   /*strcpy(config->file_name, path);
   strcat(config->file_name, PLUGIN_NAME".ini");*/
-  PathCombineA(config->file_name, path, PLUGIN_NAME".ini");
+  CombinePathA(config->file_name, path, PLUGIN_NAME".ini");
   /*strcpy(config->ill_path, path);
   strcat(config->ill_path, PLUGIN_NAME".ill");*/
-  PathCombineA(config->ill_path, path, PLUGIN_NAME".ill");
+  CombinePathA(config->ill_path, path, PLUGIN_NAME".ill");
   strcpy(config->section_name, section);
 
   return config ;
@@ -457,7 +460,7 @@ void CONFIG_save(CONFIG *config)
         break;
 
       case INT_PARAM:
-        WritePrivateProfileStringA(config->section_name, p->name, itoa((__int32)p->data,buf,10), config->file_name);
+        WritePrivateProfileStringA(config->section_name, p->name, I2AStr((__int32)p->data,buf,ARRAYSIZE(buf)), config->file_name);
         break;
 
       default:
@@ -520,7 +523,7 @@ char *CONFIG_param2text(CONFIG *config, char *name)
       {
       case FMT_DEC:
       case FMT_NONE:
-        itoa((__int32)p->data,buf,10);
+        I2AStr((__int32)p->data,buf,ARRAYSIZE(buf));
         return buf;
 
       case FMT_BOOL:
@@ -577,7 +580,7 @@ void CONFIG_text2param(CONFIG *config, char *buf, char *name)
       switch(p->format)
       {
       case FMT_DEC:
-        p->data = (void *)atoi(buf);
+        p->data = (void *)AStr2I(buf);
         break;
 
       case FMT_DB:

@@ -5,17 +5,17 @@
 
 #include <shlobj.h>
 
-int CALLBACK SHBrowseProc(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
+/*int CALLBACK SHBrowseProc(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
 {
     if( uMsg == BFFM_INITIALIZED && lpData )
     {
         SendMessage( hWnd, BFFM_SETSELECTION, TRUE, lpData);
     }
     return 0;
-}
+}*/
 
 UINT GetOpenFolderName( HWND hWnd, LPCSTR lpszDefaultFolder, char *buf, int buflen )
-{
+/*{
   LPITEMIDLIST  pIDL;
   BROWSEINFOA  bi;
   char  szSelectedFolder[MAX_PATH];
@@ -37,7 +37,7 @@ UINT GetOpenFolderName( HWND hWnd, LPCSTR lpszDefaultFolder, char *buf, int bufl
     return IDOK;
   }
   return IDCANCEL;
-}
+}/*/;/**/
 
 static void update_page(HWND hDlg, CONFIG *config)
 {
@@ -133,5 +133,5 @@ HPROPSHEETPAGE CreateConfigPage8(HINSTANCE hInst, CONFIG *config)
   psp.pszTitle = NULL;
   psp.lParam = (LPARAM)config ;
   
-  return CreatePropertySheetPage(&psp) ;
+  return CreatePropSheetPage(&psp) ;
 }

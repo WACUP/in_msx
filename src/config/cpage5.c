@@ -2,6 +2,8 @@
 #include <commctrl.h>
 #include <stdio.h>
 #include "config.h"
+#define WA_UTILS_SIMPLE
+#include <../../loader/loader/utils.h>
 
 /* Dialog Items */
 static UINT SLIDER_ID[EDSC_MAX] = { IDC_PSGVOL, IDC_SCCVOL, IDC_OPLLVOL, IDC_OPLVOL } ;
@@ -185,7 +187,7 @@ static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
   case WM_HSCROLL:
     for(i=0;i<EDSC_MAX;i++)
     {
-      if((HWND)lParam == GetDlgItem(hDlg,PAN_SLIDER[i].id))
+      if(HWNDIsCtrl(lParam, hDlg, PAN_SLIDER[i].id))
       {
         dwPos = 128 - (int)SendMessage((HWND)lParam, TBM_GETPOS, 0, 0);
         if(-16<dwPos&&dwPos<16)
@@ -199,7 +201,7 @@ static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
     return FALSE ;
 
   case WM_VSCROLL:
-    if((HWND)lParam == GetDlgItem(hDlg,IDC_MASTERVOL))
+    if(HWNDIsCtrl(lParam, hDlg, IDC_MASTERVOL))
     {
       CONFIG_rd_slider(config,hDlg,"MASTER_VOL",IDC_MASTERVOL,adjust_func1);
       CONFIG_wr_textbox(config,hDlg,"MASTER_VOL",IDC_MASTERDB);
@@ -258,5 +260,5 @@ HPROPSHEETPAGE CreateConfigPage5(HINSTANCE hInst, CONFIG *config)
   psp.pszTitle = NULL;
   psp.lParam = (LPARAM)config ;
 
-  return CreatePropertySheetPage(&psp) ;
+  return CreatePropSheetPage(&psp) ;
 }

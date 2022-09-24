@@ -132,7 +132,7 @@ static void reset_patch(EDIT2413 *edit2413)
   for(i=0;i<19;i++) OPLL_getDefaultPatch(0,i,&edit2413->patch[i*2]) ;
 }
 
-static int get_illfilename(HWND hWnd, char *buf, int max, int mode)
+/*static int get_illfilename(HWND hWnd, char *buf, int max, int mode)
 {
   OPENFILENAMEA ofn ;
 
@@ -153,7 +153,8 @@ static int get_illfilename(HWND hWnd, char *buf, int max, int mode)
     ofn.Flags = OFN_OVERWRITEPROMPT ;
     return GetSaveFileNameA(&ofn) ;
   }
-}
+}/*/
+int get_illfilename(HWND hWnd, char* buf, int max, int mode);/**/
 
 enum { ITEM_DIR, ITEM_SLOT, ITEM_PATCH } ;
 
