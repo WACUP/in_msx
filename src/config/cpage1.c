@@ -27,6 +27,7 @@ static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 
   if(uMsg == WM_INITDIALOG)
   {
+    DarkModeSetup(hDlg);
     config = ((CONFIG *)((LPPROPSHEETPAGE)lParam)->lParam) ;
     SetProp(hDlg,TEXT("CONFIG"),config) ;
     update_page(hDlg, config) ;

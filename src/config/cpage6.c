@@ -31,6 +31,7 @@ static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 
   if(uMsg == WM_INITDIALOG)
   {
+    DarkModeSetup(hDlg);
     config = ((CONFIG *)((LPPROPSHEETPAGE)lParam)->lParam) ;
     SetProp(hDlg, TEXT("CONFIG"),config) ;
     SendDlgItemMessage(hDlg, IDC_LOOPSPIN, UDM_SETRANGE, 0, MAKELONG(255,0)) ;

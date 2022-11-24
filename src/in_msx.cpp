@@ -24,8 +24,7 @@ static const GUID InMSXLangGUID =
 { 0x36aeaa76, 0xa84c, 0x4bda, { 0x87, 0xf2, 0xde, 0xb0, 0xec, 0x91, 0x28, 0x5d } };
 
 // wasabi based services for localisation support
-api_language* WASABI_API_LNG = 0;
-HINSTANCE WASABI_API_LNG_HINST = 0, WASABI_API_ORIG_HINST = 0;
+SETUP_API_LNG_VARS;
 
 int Init(void);
 void About(HWND hwndParent);

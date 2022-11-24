@@ -47,6 +47,15 @@ static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
   return config->dlgProc(hDlg, uMsg, wParam, lParam) ;
 }
 
+int CALLBACK PropSheetProc(HWND hwndDlg, UINT uMsg, LPARAM lParam)
+{
+    if (uMsg == PSCB_INITIALIZED)
+    {
+        DarkModeSetup(hwndDlg);
+    }
+    return 0;
+}
+
 void CONFIG_dialog_show(CONFIG *config, HWND hWnd, HINSTANCE hInst, int page)
 {
   HPROPSHEETPAGE hpsp[9] = { 0 };
@@ -77,7 +86,7 @@ void CONFIG_dialog_show(CONFIG *config, HWND hWnd, HINSTANCE hInst, int page)
 #endif
 
     psh.dwSize = sizeof(PROPSHEETHEADER);
-    psh.dwFlags = PSH_MODELESS ;
+    psh.dwFlags = PSH_MODELESS | PSH_USECALLBACK;
     psh.hwndParent = hWnd;
     psh.hInstance = hInst;
     psh.pszIcon = NULL;
@@ -90,6 +99,7 @@ void CONFIG_dialog_show(CONFIG *config, HWND hWnd, HINSTANCE hInst, int page)
 	psh.nPages = 8;
 #endif
     psh.phpage = hpsp;
+    psh.pfnCallback = PropSheetProc;
 
     config->dialog = (HWND)CreatePropSheets(&psh) ;
     SetProp(config->dialog, TEXT("CONFIG"), config) ;

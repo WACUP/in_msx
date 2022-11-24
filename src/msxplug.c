@@ -1018,7 +1018,7 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
     strncpy(title, (char *)current_kss->title, MAXLEN) ;
     title[MAXLEN] = '\0';
 #else
-    wchar_t* wtitle = ConvertANSI((char*)current_kss->title, CP_ACP);
+    wchar_t* wtitle = ConvertANSI((char*)current_kss->title, CP_ACP, NULL, 0);
     if (wtitle)
     {
         StringCchCopy(title, GETFILEINFO_TITLE_LENGTH, wtitle);
@@ -1057,7 +1057,7 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
       strncpy(title, item->title, MAXLEN) ;
       title[MAXLEN] = '\0';
 #else
-      wchar_t* wtitle = ConvertANSI(item->title, CP_ACP);
+      wchar_t* wtitle = ConvertANSI(item->title, CP_ACP, NULL, 0);
       if (wtitle)
       {
           StringCchCopy(title, GETFILEINFO_TITLE_LENGTH, wtitle);
@@ -1075,7 +1075,7 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
         strncpy(title,item->filename,MAXLEN) ;
         title[MAXLEN] = '\0';
 #else
-        wchar_t* wtitle = ConvertANSI(item->filename, CP_ACP);
+        wchar_t* wtitle = ConvertANSI(item->filename, CP_ACP, NULL, 0);
         if (wtitle)
         {
             StringCchCopy(title, GETFILEINFO_TITLE_LENGTH, wtitle);
@@ -1095,7 +1095,7 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
         strncpy(title,(char *)kss->title,MAXLEN) ;
         title[MAXLEN]='\0';
 #else
-        wchar_t* wtitle = ConvertANSI((char*)kss->title, CP_ACP);
+        wchar_t* wtitle = ConvertANSI((char*)kss->title, CP_ACP, NULL, 0);
         if (wtitle)
         {
             StringCchCopy(title, GETFILEINFO_TITLE_LENGTH, wtitle);

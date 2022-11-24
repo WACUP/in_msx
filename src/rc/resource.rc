@@ -1403,8 +1403,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,8,0,7
- PRODUCTVERSION 1,8,0,7
+ FILEVERSION 1,9,0,8
+ PRODUCTVERSION 1,9,0,8
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1421,12 +1421,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "WACUP"
             VALUE "FileDescription", "Input Plug-in"
-            VALUE "FileVersion", "1.8.0.7"
+            VALUE "FileVersion", "1.9.0.8"
             VALUE "InternalName", "in_msx.dll"
-            VALUE "LegalCopyright", "Copyright © 1999-2020 Digital Sound Antiques.Darren Owen aka DrO, Parts of plug-in by bbbradsmith/nsfplug Copyright © 2004-2021"
+            VALUE "LegalCopyright", "Copyright © 1999-2022 Digital Sound Antiques.Darren Owen aka DrO, Parts of plug-in by bbbradsmith/nsfplug Copyright © 2004-2021"
             VALUE "OriginalFilename", "in_msx.dll"
             VALUE "ProductName", "MSXplug Player"
-            VALUE "ProductVersion", "1.8.0.7"
+            VALUE "ProductVersion", "1.9.0.8"
         END
     END
     BLOCK "VarFileInfo"
@@ -1444,7 +1444,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_ABOUT_TITLE         "MSXplug Player"
-    IDS_ABOUT_TEXT          "%s\nCopyright © 1999-2020 Digital Sound Antiques\n(https://github.com/digital-sound-antiques)\n\nWACUP related modifications & improvements\nby %s (%s)\n\nBuild date: %hs\n\n———————————————————\n\nThis has been built using the following libraries:\n\n* KMZ80 by Mamiya\n* MGSDRV by GIGAMIX/Ain\n* Kinrou5 by Keiichi Kuroda\n* MPK by K-KAZ\n* OPLLDriver by Ring"
+    IDS_ABOUT_TEXT          "%s\nCopyright © 1999-2022 Digital Sound Antiques\n(https://github.com/digital-sound-antiques)\n\nWACUP related modifications & improvements\nby %s (%s)\n\nBuild date: %hs\n\n———————————————————\n\nThis has been built using the following libraries:\n\n* KMZ80 by Mamiya\n* MGSDRV by GIGAMIX/Ain\n* Kinrou5 by Keiichi Kuroda\n* MPK by K-KAZ\n* OPLLDriver by Ring"
     IDS_KSS_FAMILY_STRING   "KSS Data Audio File"
     IDS_MGS_FAMILY_STRING   "MGS Driver Audio File"
     IDS_BGM_FAMILY_STRING   "MuSICA Audio File"
