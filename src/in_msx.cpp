@@ -114,9 +114,11 @@ const struct
 
 void GetFileExtensions(void)
 {
-	static BOOL loaded_extensions;
+	static bool loaded_extensions;
 	if (!loaded_extensions)
 	{
+        loaded_extensions = true;
+
 		static wchar_t fileExtensionsString[256] = { 0 },
 					   *end = 0, *dest = fileExtensionsString;
 		for (size_t i = 0; i < ARRAYSIZE(extension_list); i++)
@@ -130,22 +132,14 @@ void GetFileExtensions(void)
 		}
 		//MessageBox(0, fileExtensionsString, 0, 0);
 		plugin.FileExtensions = (char*)fileExtensionsString;
-
-		loaded_extensions = TRUE;
 	}
 }
 
 int Init(void)
 {
-    WASABI_API_LNG = plugin.language;
-
-    // need to have this initialised before we try to do anything with localisation features
-    WASABI_API_START_LANG(plugin.hDllInstance, InMSXLangGUID);
-
-	wchar_t pluginTitle[256] = { 0 };
-	StringCchPrintfW(pluginTitle, ARRAYSIZE(pluginTitle),
-					 WASABI_API_LNGSTRINGW(IDS_PLUGIN_NAME), PLUGIN_VERSION);
-	plugin.description = (char *)plugin.memmgr->sysDupStr(pluginTitle);
+    WASABI_API_START_LANG_DESC(plugin.language, plugin.hDllInstance,
+							   InMSXLangGUID, IDS_PLUGIN_NAME,
+							   PLUGIN_VERSION, &plugin.description);
 
     /*preferences = (prefsDlgRecW*)GlobalAlloc(GPTR, sizeof(prefsDlgRecW));
     if (preferences)
@@ -185,8 +179,7 @@ extern "C" __declspec( dllexport ) In_Module * winampGetInModule2()
 extern "C" __declspec(dllexport) int winampUninstallPlugin(HINSTANCE hDllInst, HWND hwndDlg, int param)
 {
     // prompt to remove our settings with default as no (just incase)
-    /*if (MessageBox(hwndDlg, WASABI_API_LNGSTRINGW(IDS_DO_YOU_ALSO_WANT_TO_REMOVE_SETTINGS),
-                   (LPWSTR)plugin.description, MB_YESNO | MB_DEFBUTTON2) == IDYES)
+    /*if (plugin.language->UninstallSettingsPrompt(reinterpret_cast<const wchar_t*>(plugin.description)))
     {
         SaveNativeIniString(WINAMP_INI, L"in_flac", 0, 0);
     }*/

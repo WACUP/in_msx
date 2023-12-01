@@ -842,7 +842,7 @@ int MSXPLUG_play(const in_char *fn) {
     return 1 ;
   }
 
-  maxlatency = plugin.outMod->Open(RATE,NCH,BPS, -1,-1);
+  maxlatency = (plugin.outMod->Open ? plugin.outMod->Open(RATE,NCH,BPS, -1,-1) : -1);
 	if(maxlatency < 0)
   {
     play_arg = 0 ;
@@ -1120,7 +1120,6 @@ void MSXPLUG_eq_set(int on, char data[10], int preamp){}
                                Play Threads
 
 ==========================================================================*/
-static unsigned long thread_id ;
 static int killPlayThread=0 ;					
 static HANDLE thread_handle=INVALID_HANDLE_VALUE ;
 
@@ -1147,7 +1146,8 @@ static int refresh_current_item(void)
 {
   if(thread_handle!=INVALID_HANDLE_VALUE) return 1 ;
   killPlayThread = 0 ;
-	thread_handle = (HANDLE)CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)NoPlayThread,(void *) &killPlayThread,0,&thread_id);
+  thread_handle = StartThread(NoPlayThread, &killPlayThread,
+                          THREAD_PRIORITY_HIGHEST, 0, NULL);
   return 0 ;
 }
 
@@ -1155,7 +1155,9 @@ static void play_start()
 {
   if(thread_handle!=INVALID_HANDLE_VALUE) return ;
   killPlayThread = 0 ;
-  thread_handle = (HANDLE)CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)PlayThread,(void *) &killPlayThread,0,&thread_id);  
+  thread_handle = StartThread(PlayThread, &killPlayThread, /*plugin.config->
+							  GetInt(playbackConfigGroupGUID, L"priority",
+								   */THREAD_PRIORITY_HIGHEST/*)*/, 0, NULL);
 }
 
 static void play_stop()
