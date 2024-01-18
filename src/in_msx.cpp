@@ -69,7 +69,7 @@ extern "C" In_Module plugin =
   /* VIS STUFF */
 	0,0,0,0,0,0,0,0,0,
     0, 0,	// dsp bits
-    NULL,
+    IN_INIT_WACUP_EQSET_EMPTY
     NULL,	// setinfo
     NULL,	// out_mod
     NULL,	// api_service
@@ -161,7 +161,7 @@ void About(HWND hwndParent)
 {
 	wchar_t message[1024] = { 0 };
 	StringCchPrintfW(message, ARRAYSIZE(message), WASABI_API_LNGSTRINGW(IDS_ABOUT_TEXT),
-				     plugin.description, L"Darren Owen aka DrO", L"2022-" WACUP_COPYRIGHT, __DATE__);
+				     plugin.description, WACUP_AUTHOR_STRW, L"2022-" WACUP_COPYRIGHT, __DATE__);
 	AboutMessageBox(hwndParent, message, (LPCWSTR)WASABI_API_LNGSTRINGW(IDS_ABOUT_TITLE));
 }
 
@@ -204,23 +204,6 @@ extern "C" __declspec(dllexport) int winampUseUnifiedFileInfoDlg(const wchar_t* 
 // this will be broadcast to all panes (including yours) as a WM_USER.
 extern "C" __declspec(dllexport) HWND winampAddUnifiedFileInfoPane(int n, const wchar_t* filename, HWND parent, wchar_t* name, size_t namelen)
 {
-    /*if (n == 0)
-    {
-        // add first pane
-        g_info = new FLACInfo;
-        if (g_info)
-        {
-            SetProp(parent, L"INBUILT_NOWRITEINFO", (HANDLE)1);
-
-            // TODO localise
-            wcsncpy(name, L"Vorbis Comment Tag", namelen);
-
-            g_info->filename = filename;
-            g_info->metadata.Open(filename, true);
-            return WASABI_API_CREATEDIALOGPARAMW(IDD_INFOCHILD_ADVANCED, parent,
-                                                 ChildProc_Advanced, (LPARAM)g_info);
-        }
-    }*/
     return NULL;
 }
 
@@ -269,13 +252,7 @@ extern "C" __declspec(dllexport) int winampGetExtendedFileInfoW(const wchar_t* f
                 return 1;
             }
         }
-        return 0;
     }
-
-    /*create_player(false);
-
-    AutoCharFn _fn(fn);
-    return ((pPlugin != NULL) ? pPlugin->GetMetadata(_fn, data, dest, destlen) : 0);*/
     return 0;
 }
 

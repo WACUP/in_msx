@@ -748,7 +748,7 @@ static int play_setup(const char *fn)
       fputs("Version=2",fp);
       fclose(fp);
       COPYDATASTRUCT cds;
-      cds.dwData = IPC_PLAYFILE;
+      cds.dwData = IPC_ENQUEUEFILE;
       cds.lpData = (void *) plsfile; 
       cds.cbData = (int)strlen((char *) cds.lpData)+1;
       SendMessage(hMainWindow,WM_COPYDATA,(WPARAM)NULL,(LPARAM)&cds);

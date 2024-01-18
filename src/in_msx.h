@@ -2,12 +2,12 @@
 #define _IN_MSX_H_
 
 #define PLUGIN_NAME "in_msx"
-#define PLUGIN_VERSION TEXT("1.9.1.11")
+#define PLUGIN_VERSION TEXT("1.9.2")
 
 #ifndef WACUP_BUILD
 #define IN_MSX_ABOUT                                    \
   "MSXplug version " PLUGIN_VERSION "\r\n"              \
-  "Copyright © 1999-2023 Digital Sound Antiques\r\n"    \
+  "Copyright © 1999-2024 Digital Sound Antiques\r\n"    \
   "http://www.github.io/digital-sound-antiques\r\n"     \
   "\r\n"                                                \
   "This software is built with following software.\r\n" \

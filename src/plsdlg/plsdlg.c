@@ -299,7 +299,7 @@ static void apply_all(PLSDLG *plsdlg)
 
   SendMessage(plsdlg->hWinamp,WM_WA_IPC,sav,IPC_SETPLAYLISTPOS) ;
   PLSDLG_set_item(plsdlg,plsdlg->pos) ;
-  SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_REFRESHPLCACHE);
+  PostMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_REFRESHPLCACHE);
 
 }
 
@@ -374,7 +374,7 @@ static BOOL bn_clicked_event(HWND hDlg, UINT uIdc, PLSDLG *plsdlg)
     return TRUE ;
 
   case IDC_REFRESH:
-    SendMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_REFRESHPLCACHE);
+    PostMessage(plsdlg->hWinamp,WM_WA_IPC,0,IPC_REFRESHPLCACHE);
     return TRUE ;
 
   case IDC_PLAY:
