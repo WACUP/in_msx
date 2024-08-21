@@ -28,7 +28,7 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 #if defined(APSTUDIO_INVOKED)
 IDD_CFG_PAGE1$(DISABLED) DIALOG 0, 0, 140, 127
 #else
-IDD_CFG_PAGE1 DIALOG  0, 0, 140, 127
+IDD_CFG_PAGE1 DIALOG 0, 0, 140, 127
 #endif
 STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "ファイル種別"
@@ -138,7 +138,7 @@ END
 #if defined(APSTUDIO_INVOKED)
 IDD_CFG_PAGE5$(DISABLED) DIALOG 0, 0, 237, 198
 #else
-IDD_CFG_PAGE5 DIALOG  0, 0, 237, 198
+IDD_CFG_PAGE5 DIALOG 0, 0, 237, 198
 #endif
 STYLE DS_SETFONT | WS_CHILD | WS_CAPTION
 CAPTION "ミキサー"
@@ -212,7 +212,7 @@ END
 #if defined(APSTUDIO_INVOKED)
 IDD_CFG_PAGE7$(DISABLED) DIALOG 0, 0, 214, 135
 #else
-IDD_CFG_PAGE7 DIALOG  0, 0, 214, 135
+IDD_CFG_PAGE7 DIALOG 0, 0, 214, 135
 #endif
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "フィルタ"
@@ -658,15 +658,15 @@ IDI_MSXPLUG             ICON                    "msxplug.ico"
 #if defined(APSTUDIO_INVOKED)
 IDR_MENU1$(DISABLED) MENU
 #else
-IDR_MENU1 MENU 
+IDR_MENU1 MENU
 #endif
 BEGIN
     POPUP "表示(&V)"
     BEGIN
-        MENUITEM "チャンネルマスク(&M)",        IDM_MASK
-        MENUITEM "音色エディタ(&T)",            IDM_VEDIT
-        MENUITEM "MGS歌詞ウィンドウ(&L)",       IDM_OPTDLG
-        MENUITEM "詳細設定(&C)",                IDM_CONFIG
+        MENUITEM "チャンネルマスク(&M)",                IDM_MASK
+        MENUITEM "音色エディタ(&T)",                  IDM_VEDIT
+        MENUITEM "MGS歌詞ウィンドウ(&L)",              IDM_OPTDLG
+        MENUITEM "詳細設定(&C)",                    IDM_CONFIG
     END
 END
 #endif
@@ -675,11 +675,11 @@ END
 #if defined(APSTUDIO_INVOKED)
 IDR_EXTRA$(DISABLED) MENU
 #else
-IDR_EXTRA MENU 
+IDR_EXTRA MENU
 #endif
 BEGIN
-    MENUITEM "チャンネルマスク(&M)",        4650
-    MENUITEM "詳細設定(&S)",                4649
+    MENUITEM "チャンネルマスク(&M)",                4650
+    MENUITEM "詳細設定(&S)",                    4649
 END
 #endif
 
@@ -1081,7 +1081,7 @@ BEGIN
     EDITTEXT        IDC_FMBIOS_PATH,60,105,170,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
     PUSHBUTTON      "Moon&Blaster",IDC_SET_MBMDRV,5,123,50,12
     EDITTEXT        IDC_MBMDRV_PATH,60,124,170,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
-    END
+END
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1260,7 +1260,7 @@ END
 // Menu
 //
 
-IDR_MENU1 MENU 
+IDR_MENU1 MENU
 BEGIN
     POPUP "&View"
     BEGIN
@@ -1403,8 +1403,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,9,2,0
- PRODUCTVERSION 1,9,2,0
+ FILEVERSION 1,9,4,0
+ PRODUCTVERSION 1,9,4,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1421,12 +1421,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "WACUP"
             VALUE "FileDescription", "Input Plug-in"
-            VALUE "FileVersion", "1.9.2.0"
+            VALUE "FileVersion", "1.9.4.0"
             VALUE "InternalName", "in_msx.dll"
             VALUE "LegalCopyright", "Copyright ｩ 1999-2024 Digital Sound Antiques. Parts of plug-in by bbbradsmith/nsfplug Copyright ｩ 2004-2024"
             VALUE "OriginalFilename", "in_msx.dll"
             VALUE "ProductName", "MSXplug Player"
-            VALUE "ProductVersion", "1.9.2.0"
+            VALUE "ProductVersion", "1.9.4.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -1444,7 +1444,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_ABOUT_TITLE         "MSXplug Player"
-    IDS_ABOUT_TEXT          "%s\nCopyright ｩ 1999-2022 Digital Sound Antiques\n(https://github.com/digital-sound-antiques)\n\nWACUP related modifications & improvements\nby %s (%s)\n\nBuild date: %hs\n\n覧覧覧覧覧覧覧覧覧予n\nThis has been built using the following libraries:\n\n* KMZ80 by Mamiya\n* MGSDRV by GIGAMIX/Ain\n* Kinrou5 by Keiichi Kuroda\n* MPK by K-KAZ\n* OPLLDriver by Ring"
+    IDS_ABOUT_TEXT          "%s\nCopyright ｩ 1999-2022 Digital Sound Antiques\n(https://github.com/digital-sound-antiques)\n\nWACUP related modifications & improvements\nby %s (2022-%s)\n\nBuild date: %hs\n\n覧覧覧覧覧覧覧覧覧予n\nThis has been built using the following libraries:\n\n* KMZ80 by Mamiya\n* MGSDRV by GIGAMIX/Ain\n* Kinrou5 by Keiichi Kuroda\n* MPK by K-KAZ\n* OPLLDriver by Ring"
     IDS_KSS_FAMILY_STRING   "KSS Data Audio File"
     IDS_MGS_FAMILY_STRING   "MGS Driver Audio File"
     IDS_BGM_FAMILY_STRING   "MuSICA Audio File"

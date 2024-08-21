@@ -18,8 +18,6 @@
 #include <../loader/loader/utils.h>
 #include <../loader/loader/paths.h>
 
-#include <../wacup_version.h>
-
 // TODO add to lang.h
 // {36AEAA76-A84C-4bda-87F2-DEB0EC91285D}
 static const GUID InMSXLangGUID =
@@ -161,7 +159,7 @@ void About(HWND hwndParent)
 {
 	wchar_t message[1024] = { 0 };
 	StringCchPrintfW(message, ARRAYSIZE(message), WASABI_API_LNGSTRINGW(IDS_ABOUT_TEXT),
-				     plugin.description, WACUP_AUTHOR_STRW, L"2022-" WACUP_COPYRIGHT, __DATE__);
+				     plugin.description, WACUP_Author(), WACUP_Copyright(), __DATE__);
 	AboutMessageBox(hwndParent, message, (LPCWSTR)WASABI_API_LNGSTRINGW(IDS_ABOUT_TITLE));
 }
 
