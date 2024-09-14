@@ -12,9 +12,9 @@ PANDLG *PANDLG_new(HINSTANCE hInstance, CONFIG *config)
   PANDLG *dlg = malloc(sizeof(PANDLG));
   if (dlg)
   {
-  dlg->hInst = hInstance;
-  dlg->config = config; 
-  dlg->hDialog = NULL;
+      dlg->hInst = hInstance;
+      dlg->config = config;
+      dlg->hDialog = NULL;
   }
   return dlg;
 }

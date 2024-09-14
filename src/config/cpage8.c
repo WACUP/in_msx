@@ -14,7 +14,7 @@
     return 0;
 }*/
 
-UINT GetOpenFolderName( HWND hWnd, LPCSTR lpszDefaultFolder, char *buf, int buflen )
+UINT GetOpenFolderName(HWND hWnd, LPCSTR lpszDefaultFolder, char* buf, int buflen)
 /*{
   LPITEMIDLIST  pIDL;
   BROWSEINFOA  bi;

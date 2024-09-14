@@ -37,7 +37,7 @@ static void update_page(HWND hDlg, CONFIG *config)
   CONFIG_wr_radiobtn(config,hDlg,"CPUSPEED",IDC_CLK_AUTO,IDC_CLK_FASTEST,0);
   if (!force_mono())
   {
-  CONFIG_wr_radiobtn(config,hDlg,"STEREO",IDC_STEREO_AUTO,IDC_STEREO_ON,0);
+      CONFIG_wr_radiobtn(config, hDlg, "STEREO", IDC_STEREO_AUTO, IDC_STEREO_ON, 0);
   }
   else
   {
@@ -66,7 +66,7 @@ static void update_config(HWND hDlg, CONFIG *config)
   CONFIG_rd_radiobtn(config,hDlg,"CPUSPEED",IDC_CLK_AUTO,IDC_CLK_FASTEST,0);
   if (!force_mono())
   {
-  CONFIG_rd_radiobtn(config,hDlg,"STEREO",IDC_STEREO_AUTO,IDC_STEREO_ON,0);
+      CONFIG_rd_radiobtn(config, hDlg, "STEREO", IDC_STEREO_AUTO, IDC_STEREO_ON, 0);
   }
   CONFIG_rd_checkbtn(config,hDlg,"PSG_HQ",IDC_PSG_HQ);
   CONFIG_rd_checkbtn(config,hDlg,"SCC_HQ",IDC_SCC_HQ);

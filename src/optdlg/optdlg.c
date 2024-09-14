@@ -276,7 +276,7 @@ void OPTDLG_delete(OPTDLG *__this)
 {
   if (__this)
   {
-  OPTDLG_close(__this) ;
-  free(__this) ;
+    OPTDLG_close(__this) ;
+    free(__this) ;
   }
 }

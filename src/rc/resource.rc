@@ -296,7 +296,7 @@ IDD_KSSDLG DIALOGEX 32, 32, 191, 173
 #endif
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "ファイル情報"
-MENU IDR_MENU1
+MENU IDR_CONTEXT_MENUS
 FONT 9, "ＭＳ Ｐゴシック", 0, 0, 0x0
 BEGIN
     LTEXT           "ファイル",IDC_STATIC,11,17,26,8,SS_CENTERIMAGE
@@ -656,9 +656,9 @@ IDI_MSXPLUG             ICON                    "msxplug.ico"
 
 #if defined(APSTUDIO_INVOKED) || defined(DISABLED)
 #if defined(APSTUDIO_INVOKED)
-IDR_MENU1$(DISABLED) MENU
+IDR_CONTEXT_MENUS$(DISABLED) MENU
 #else
-IDR_MENU1 MENU
+IDR_CONTEXT_MENUS MENU
 #endif
 BEGIN
     POPUP "表示(&V)"
@@ -941,7 +941,7 @@ END
 IDD_KSSDLG DIALOGEX 32, 32, 221, 145
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "File information"
-MENU IDR_MENU1
+MENU IDR_CONTEXT_MENUS
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
     GROUPBOX        "Header Information",IDC_STATIC,6,1,211,52
@@ -1260,7 +1260,7 @@ END
 // Menu
 //
 
-IDR_MENU1 MENU
+IDR_CONTEXT_MENUS MENU
 BEGIN
     POPUP "&View"
     BEGIN
@@ -1403,8 +1403,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,9,4,0
- PRODUCTVERSION 1,9,4,0
+ FILEVERSION 1,9,5,0
+ PRODUCTVERSION 1,9,5,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1421,12 +1421,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "WACUP"
             VALUE "FileDescription", "Input Plug-in"
-            VALUE "FileVersion", "1.9.4.0"
+            VALUE "FileVersion", "1.9.5.0"
             VALUE "InternalName", "in_msx.dll"
             VALUE "LegalCopyright", "Copyright ｩ 1999-2024 Digital Sound Antiques. Parts of plug-in by bbbradsmith/nsfplug Copyright ｩ 2004-2024"
             VALUE "OriginalFilename", "in_msx.dll"
             VALUE "ProductName", "MSXplug Player"
-            VALUE "ProductVersion", "1.9.4.0"
+            VALUE "ProductVersion", "1.9.5.0"
         END
     END
     BLOCK "VarFileInfo"

@@ -10,6 +10,9 @@
 #include "controls/control.h"
 #include "edit2413.h"
 
+#define WA_UTILS_SIMPLE
+#include <../../loader/loader/utils.h>
+
 static char *LABEL[ENDPARAM] = { "TL","FB", "EG", "ML", "AR","DR","SL","RR","KR", "KL", "AM","PM","WF"} ;
 static int PARAMAX[ENDPARAM] = { 63 , 7 , 1, 15, 15, 15, 15, 15, 1, 3, 1, 1, 1 } ;
 static OPLL_PATCH dummy_patch ;
@@ -392,7 +395,7 @@ void EDIT2413_open(EDIT2413 *edit2413, HWND hwndParent, HINSTANCE hInst)
     if(edit2413->hMain==NULL)
     {
       edit2413->hMain = CreateDialog(hInst, MAKEINTRESOURCE(IDD_EDIT2413), hwndParent, dlgProc) ;
-      SetWindowPos(GetDlgItem(edit2413->hMain,IDC_LOGO),NULL,0,0,57*2,23*2,SWP_NOMOVE) ;
+      SetDlgItemPos(edit2413->hMain,IDC_LOGO,NULL,0,0,57*2,23*2,SWP_NOMOVE) ;
       edit2413->cursel = 0 ;
 
       SetProp(edit2413->hMain, TEXT("EDIT2413"), edit2413) ;

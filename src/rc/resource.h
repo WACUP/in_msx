@@ -34,7 +34,7 @@
 #define IDD_PANDLG                      163
 #define IDB_ASCII                       164
 #define IDD_CFG_PAGE8                   168
-#define IDR_MENU1                       170
+#define IDR_CONTEXT_MENUS               170
 #define IDD_OPTDLG                      172
 #define IDR_EXTRA                       174
 #define IDD_MASKDLG                     175

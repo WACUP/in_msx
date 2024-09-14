@@ -221,7 +221,7 @@ void KSSDLG_delete(KSSDLG *kssdlg)
 {
   if (kssdlg)
   {
-  KSSDLG_close(kssdlg) ;
-  free(kssdlg) ;
+    KSSDLG_close(kssdlg) ;
+    free(kssdlg) ;
   }
 }

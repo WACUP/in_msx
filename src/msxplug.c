@@ -497,7 +497,7 @@ void MSXPLUG_quit()
 }
 
 /*int MSXPLUG_isourfile(const in_char *fn) 
-{ 
+{
 #if 0
   PLSITEM *item ;
 
@@ -636,21 +636,21 @@ static int play_setup(const char *fn)
 
   if (!force_mono())
   {
-  switch(CONFIG_get_int(cfg,"STEREO"))
-  {
-  case 0: /* AUTO */ 
-    NCH = current_kss->stereo||(CONFIG_get_int(cfg,"OPLL_STEREO")&&current_kss->fmpac)?2:1;
-    break;
+    switch(CONFIG_get_int(cfg,"STEREO"))
+    {
+    case 0: /* AUTO */ 
+      NCH = current_kss->stereo||(CONFIG_get_int(cfg,"OPLL_STEREO")&&current_kss->fmpac)?2:1;
+      break;
 
     case 1: /* msx */
-    NCH = 1;
-    break;
+      NCH = 1;
+      break;
 
-  case 2: /* STEREO */
+    case 2: /* STEREO */
     default:
-    NCH = 2;
-    break;
-  }
+      NCH = 2;
+      break;
+    }
   }
   else
   {
@@ -813,7 +813,7 @@ static void setup_window(void)
 {
   static int flag = 1 ;
   if(flag)
-  {  
+  {
     MSXPLUG_init() ;
     GrabWinamp(plugin.hMainWindow) ;
     cfg->hWinamp = plugin.hMainWindow ;
@@ -842,17 +842,19 @@ int MSXPLUG_play(const in_char *fn) {
     return 1 ;
   }
 
-  maxlatency = (plugin.outMod->Open ? plugin.outMod->Open(RATE,NCH,BPS, -1,-1) : -1);
+  maxlatency = (plugin.outMod->Open && RATE && NCH ?
+                plugin.outMod->Open(RATE, NCH, BPS,
+                                     -1, -1) : -1);
 	if(maxlatency < 0)
   {
     play_arg = 0 ;
     return 1 ;
   }
 	
-	plugin.SetInfo((RATE*BPS*NCH)/1000,RATE/1000,NCH,1);
-	plugin.SAVSAInit(maxlatency,RATE);
-	plugin.VSASetInfo(RATE,NCH);
-	plugin.outMod->SetVolume(-666);
+  plugin.SetInfo((RATE*BPS*NCH)/1000,RATE/1000,NCH,1);
+  plugin.SAVSAInit(maxlatency,RATE);
+  plugin.VSASetInfo(RATE,NCH);
+  plugin.outMod->SetVolume(-666);
   plugin.outMod->Flush(0) ;
   flush_flag = 1 ;
 
@@ -874,8 +876,8 @@ int MSXPLUG_play(const in_char *fn) {
   return 0 ; 
 } 
 
-void MSXPLUG_pause() { pause_flag = 1 ; plugin.outMod->Pause(1) ; } 
-void MSXPLUG_unpause() { pause_flag = 0 ; plugin.outMod->Pause(0) ; } 
+void MSXPLUG_pause() { pause_flag = 1 ; if (plugin.outMod) plugin.outMod->Pause(1) ; }
+void MSXPLUG_unpause() { pause_flag = 0 ; if (plugin.outMod) plugin.outMod->Pause(0) ; }
 int MSXPLUG_ispaused() { return pause_flag ; } 
 
 static int isPlaying(void) ;
@@ -928,8 +930,14 @@ void MSXPLUG_stop()
   kssplay = NULL ;
   free(sample_buf) ;
   sample_buf = NULL;
-  plugin.outMod->Close();
-  plugin.SAVSADeInit();
+  if (plugin.outMod && plugin.outMod->Close)
+  {
+      plugin.outMod->Close();
+  }
+  if (plugin.outMod)
+  {
+      plugin.SAVSADeInit();
+  }
 }
 
 int MSXPLUG_getlength()
@@ -963,8 +971,11 @@ void MSXPLUG_setoutputtime(int time_in_ms)
     seek_pos = MS2POS(time_in_ms) ;
     decode_pos = 0 ;
   }
-  
-  plugin.outMod->Flush(POS2MS(decode_pos)) ;
+
+  if (plugin.outMod)
+  {
+      plugin.outMod->Flush(POS2MS(decode_pos));
+  }
   flush_flag = 1 ;
 
   play_start() ;
@@ -972,12 +983,18 @@ void MSXPLUG_setoutputtime(int time_in_ms)
 
 void MSXPLUG_setvolume(int volume)
 {
-  plugin.outMod->SetVolume(volume) ;
+  if (plugin.outMod)
+  {
+      plugin.outMod->SetVolume(volume);
+  }
 }
 
 void MSXPLUG_setpan(int pan)
 {
-  plugin.outMod->SetPan(pan) ;
+  if (plugin.outMod)
+  {
+    plugin.outMod->SetPan(pan) ;
+  }
 }
 
 int MSXPLUG_plsdlg(HWND hwnd)
@@ -1009,16 +1026,16 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
 {
   const int MAXLEN = _MAX_PATH ;
   PLSITEM *item ;
-  
+
   MSXPLUG_init();
 
   if((!filename)||(!filename[0]))
   {
 #ifndef WACUP_BUILD
-    strncpy(title, (char *)current_kss->title, MAXLEN) ;
+    strncpy(title, (char*)current_kss->title, MAXLEN);
     title[MAXLEN] = '\0';
 #else
-    wchar_t* wtitle = ConvertANSI((char*)current_kss->title, CP_ACP, NULL, 0);
+    wchar_t* wtitle = ConvertANSI((char*)current_kss->title, -1, CP_ACP, NULL, 0);
     if (wtitle)
     {
         StringCchCopy(title, GETFILEINFO_TITLE_LENGTH, wtitle);
@@ -1054,10 +1071,10 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
     if(item->title)
     {
 #ifndef WACUP_BUILD
-      strncpy(title, item->title, MAXLEN) ;
+      strncpy(title, item->title, MAXLEN);
       title[MAXLEN] = '\0';
 #else
-      wchar_t* wtitle = ConvertANSI(item->title, CP_ACP, NULL, 0);
+      wchar_t* wtitle = ConvertANSI(item->title, -1, CP_ACP, NULL, 0);
       if (wtitle)
       {
           StringCchCopy(title, GETFILEINFO_TITLE_LENGTH, wtitle);
@@ -1072,10 +1089,10 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
       if((kss = KSS_load_file(item->filename))==NULL)
       {
 #ifndef WACUP_BUILD
-        strncpy(title,item->filename,MAXLEN) ;
+        strncpy(title, item->filename, MAXLEN);
         title[MAXLEN] = '\0';
 #else
-        wchar_t* wtitle = ConvertANSI(item->filename, CP_ACP, NULL, 0);
+        wchar_t* wtitle = ConvertANSI(item->filename, -1, CP_ACP, NULL, 0);
         if (wtitle)
         {
             StringCchCopy(title, GETFILEINFO_TITLE_LENGTH, wtitle);
@@ -1092,10 +1109,10 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
         }
 
 #ifndef WACUP_BUILD
-        strncpy(title,(char *)kss->title,MAXLEN) ;
-        title[MAXLEN]='\0';
+        strncpy(title, (char*)kss->title, MAXLEN);
+        title[MAXLEN] = '\0';
 #else
-        wchar_t* wtitle = ConvertANSI((char*)kss->title, CP_ACP, NULL, 0);
+        wchar_t* wtitle = ConvertANSI((char*)kss->title, -1, CP_ACP, NULL, 0);
         if (wtitle)
         {
             StringCchCopy(title, GETFILEINFO_TITLE_LENGTH, wtitle);
@@ -1322,7 +1339,7 @@ static DWORD WINAPI __stdcall PlayThread(void *b)
       plugin.outMod->Write((char *)sample_buf,length);
       flush_flag = 0 ;
       plugin.SAAddPCMData(sample_buf,NCH,BPS,decode_pos_ms) ;
-			plugin.VSAAddPCMData(sample_buf,NCH,BPS,decode_pos_ms) ;
+      /*plugin.VSAAddPCMData(sample_buf,NCH,BPS,decode_pos_ms) ;*/
 
     }
     else Sleep(10);

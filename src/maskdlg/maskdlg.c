@@ -202,7 +202,7 @@ void MASKDLG_delete(MASKDLG *dlg)
 {
   if (dlg)
   {
-  MASKDLG_close(dlg) ;
-  free(dlg) ;
+    MASKDLG_close(dlg) ;
+    free(dlg) ;
   }
 }
