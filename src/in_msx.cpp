@@ -17,6 +17,7 @@
 #define WA_UTILS_SIMPLE
 #include <../loader/loader/utils.h>
 #include <../loader/loader/paths.h>
+#include <../loader/loader/delay_load_helper.h>
 
 // TODO add to lang.h
 // {36AEAA76-A84C-4bda-87F2-DEB0EC91285D}
@@ -340,3 +341,5 @@ extern "C" UINT GetOpenFolderName(HWND hWnd, LPCSTR lpszDefaultFolder, char* buf
     }
     return IDCANCEL;
 }
+
+DLL_DELAY_LOAD_HANDLER
