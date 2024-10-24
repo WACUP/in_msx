@@ -225,6 +225,20 @@ extern "C" __declspec(dllexport) int winampGetExtendedFileInfoW(const wchar_t* f
     {
         return 0;
     }
+    else if (SameStrA(data, "bitrate"))
+    {
+        MSXPLUG_init();
+        MSXPLUG_get_channel_output_config();
+        I2WStr((RATE * BPS * NCH), dest, destlen);
+        return 1;
+    }
+    else if (SameStrA(data, "samplerate"))
+    {
+        MSXPLUG_init();
+        MSXPLUG_get_channel_output_config();
+        I2WStr(RATE, dest, destlen);
+        return 1;
+    }
 
     if (!fn || !fn[0])
     {

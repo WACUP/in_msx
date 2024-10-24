@@ -1403,8 +1403,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,9,6,0
- PRODUCTVERSION 1,9,6,0
+ FILEVERSION 1,9,8,0
+ PRODUCTVERSION 1,9,8,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -1421,12 +1421,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "WACUP"
             VALUE "FileDescription", "Input Plug-in"
-            VALUE "FileVersion", "1.9.6.0"
+            VALUE "FileVersion", "1.9.8.0"
             VALUE "InternalName", "in_msx.dll"
             VALUE "LegalCopyright", "Copyright © 1999-2024 Digital Sound Antiques. Parts of plug-in by bbbradsmith/nsfplug Copyright © 2004-2024"
             VALUE "OriginalFilename", "in_msx.dll"
             VALUE "ProductName", "MSXplug Player"
-            VALUE "ProductVersion", "1.9.6.0"
+            VALUE "ProductVersion", "1.9.8.0"
         END
     END
     BLOCK "VarFileInfo"

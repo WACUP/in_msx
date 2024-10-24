@@ -54,6 +54,9 @@ void MSXPLUG_play_song(int pos);
 
 void MSXPLUG_play2(int pos, int arg) ;
 
+void MSXPLUG_get_channel_output_config(void) ;
+extern int RATE, NCH, BPS ;
+
 #if defined(__cplusplus)
 }
 #endif

@@ -47,7 +47,8 @@ static FILE *logfp;
 extern In_Module plugin ; 
 
 /* the buffer size, sample rate, number of channel, BitsPerSample */
-static int BUFSIZE, RATE, NCH, BPS ;
+static int BUFSIZE;// , RATE, NCH, BPS;
+int RATE = 0, NCH = 0, BPS = 0 ;
 
 /* current song info */
 static char current_file[_MAX_PATH] ;
@@ -599,6 +600,37 @@ static void kss2pls(KSS *kss, char *base, int i, char *buf, int buflen, int play
 
 }
 
+void MSXPLUG_get_channel_output_config(void)
+{
+  RATE = CONFIG_get_int(cfg,"RATE") ;
+
+  if (!force_mono())
+  {
+    switch(CONFIG_get_int(cfg,"STEREO"))
+    {
+    case 0: /* AUTO */ 
+      NCH = current_kss->stereo||(CONFIG_get_int(cfg,"OPLL_STEREO")&&current_kss->fmpac)?2:1;
+      break;
+
+    case 1: /* msx */
+      NCH = 1;
+      break;
+
+    case 2: /* STEREO */
+    default:
+      NCH = 2;
+      break;
+    }
+  }
+  else
+  {
+      // if the force mono playback mode is enabled then
+      // this will show that state via the config dialog
+      // but will prevent this plug-in's mode being used
+      NCH = 1;
+  }
+}
+
 static int play_setup(const char *fn)
 {
   PLSITEM *item ;
@@ -632,33 +664,7 @@ static int play_setup(const char *fn)
     current_kss->title[KSS_TITLE_MAX-1] = '\0' ;
   }
 
-  RATE = CONFIG_get_int(cfg,"RATE") ;
-
-  if (!force_mono())
-  {
-    switch(CONFIG_get_int(cfg,"STEREO"))
-    {
-    case 0: /* AUTO */ 
-      NCH = current_kss->stereo||(CONFIG_get_int(cfg,"OPLL_STEREO")&&current_kss->fmpac)?2:1;
-      break;
-
-    case 1: /* msx */
-      NCH = 1;
-      break;
-
-    case 2: /* STEREO */
-    default:
-      NCH = 2;
-      break;
-    }
-  }
-  else
-  {
-      // if the force mono playback mode is enabled then
-      // this will show that state via the config dialog
-      // but will prevent this plug-in's mode being used
-      NCH = 1;
-  }
+  MSXPLUG_get_channel_output_config();
 
   BUFSIZE = CONFIG_get_int(cfg,"BUFSIZE") ;
   BPS = CONFIG_get_int(cfg,"BPS") ;
