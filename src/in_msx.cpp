@@ -239,6 +239,16 @@ extern "C" __declspec(dllexport) int winampGetExtendedFileInfoW(const wchar_t* f
         I2WStr(RATE, dest, destlen);
         return 1;
     }
+    else if (SameStrA(data, "bitdepth"))
+    {
+        // TODO not sure on this as it's set
+        //      to use the configured output
+        //      mode otherwise it's not real
+        MSXPLUG_init();
+        MSXPLUG_get_channel_output_config();
+        I2WStr(BPS, dest, destlen);
+        return 1;
+    }
 
     if (!fn || !fn[0])
     {
