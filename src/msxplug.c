@@ -753,10 +753,7 @@ static int play_setup(const char *fn)
       fprintf(fp,"NumberofEntries=%d\n",current_kss->info_num-1);
       fputs("Version=2",fp);
       fclose(fp);
-      COPYDATASTRUCT cds;
-      cds.dwData = IPC_ENQUEUEFILE;
-      cds.lpData = (void *) plsfile; 
-      cds.cbData = (int)strlen((char *) cds.lpData)+1;
+      const COPYDATASTRUCT cds = { IPC_ENQUEUEFILE, (int)strlen(plsfile) + 1, (void*)plsfile };
       SendMessage(hMainWindow,WM_COPYDATA,(WPARAM)NULL,(LPARAM)&cds);
     }
     song=0;
@@ -848,9 +845,8 @@ int MSXPLUG_play(const in_char *fn) {
     return 1 ;
   }
 
-  maxlatency = (plugin.outMod->Open && RATE && NCH ?
-                plugin.outMod->Open(RATE, NCH, BPS,
-                                     -1, -1) : -1);
+  maxlatency = (plugin.outMod && plugin.outMod->Open && RATE && NCH ?
+                plugin.outMod->Open(RATE, NCH, BPS, -1, -1) : -1);
 	if(maxlatency < 0)
   {
     play_arg = 0 ;
