@@ -81,11 +81,6 @@ extern "C" In_Module plugin =
     IN_INIT_WACUP_END_STRUCT
 };
 
-extern "C" char* safe_strdup(char* str)
-{
-    return plugin.memmgr->sysDupStr(str);
-}
-
 extern "C" BOOL force_mono(void)
 {
     // {B6CB4A7C-A8D0-4c55-8E60-9F7A7A23DA0F}
@@ -113,39 +108,45 @@ const struct
 
 void GetFileExtensions(void)
 {
-	static bool loaded_extensions;
-	if (!loaded_extensions)
+	if (!plugin.FileExtensions)
 	{
-        loaded_extensions = true;
+        LPCWSTR extensions[] =
+        {
+            extension_list[0].ext,
+            extension_list[1].ext,
+            extension_list[2].ext,
+            extension_list[3].ext,
+            extension_list[4].ext,
+            extension_list[5].ext,
+            extension_list[6].ext
+        },
+            descriptions[] =
+        {
+            (LPCWSTR)extension_list[0].id,
+            (LPCWSTR)extension_list[1].id,
+            (LPCWSTR)extension_list[2].id,
+            (LPCWSTR)extension_list[3].id,
+            (LPCWSTR)extension_list[4].id,
+            (LPCWSTR)extension_list[5].id,
+            (LPCWSTR)extension_list[6].id
+        };
 
-		static wchar_t fileExtensionsString[256] = { 0 },
-					   *end = 0, *dest = fileExtensionsString;
-		for (size_t i = 0; i < ARRAYSIZE(extension_list); i++)
-		{
-			StringCchCopyExW(dest, ARRAYSIZE(fileExtensionsString),
-							 extension_list[i].ext, &end, 0, 0);
-			dest = (end + 1);
-			StringCchCopyExW(dest, ARRAYSIZE(fileExtensionsString),
-							 WASABI_API_LNGSTRINGW(extension_list[i].id), &end, 0, 0);
-			dest = (end + 1);
-		}
-		//MessageBox(0, fileExtensionsString, 0, 0);
-		plugin.FileExtensions = (char*)fileExtensionsString;
+		plugin.FileExtensions = BuildInputFileListArrayString(extensions, descriptions, ARRAYSIZE(extensions),
+                                                                 WASABI_API_LNG_HINST, WASABI_API_ORIG_HINST);
 	}
 }
 
 int Init(void)
 {
-    WASABI_API_START_LANG_DESC(plugin.language, plugin.hDllInstance,
-							   InMSXLangGUID, IDS_PLUGIN_NAME,
-							   PLUGIN_VERSION, &plugin.description);
+    StartPluginLangWithDesc(plugin.hDllInstance, InMSXLangGUID, IDS_PLUGIN_NAME,
+							               PLUGIN_VERSION, &plugin.description);
 
     /*preferences = (prefsDlgRecW*)GlobalAlloc(GPTR, sizeof(prefsDlgRecW));
     if (preferences)
     {
         preferences->hInst = GetModuleHandleW(GetPaths()->wacup_core_dll);
         preferences->dlgID = IDD_TABBED_PREFS_DIALOG;
-        preferences->name = WASABI_API_LNGSTRINGW_DUP(IDS_NSF);
+        preferences->name = LngStringDup(IDS_NSF);
         preferences->proc = ConfigDialogProc;
         preferences->where = 10;
         preferences->_id = 99;
@@ -159,9 +160,9 @@ int Init(void)
 void About(HWND hwndParent)
 {
 	wchar_t message[1024] = { 0 };
-	StringCchPrintfW(message, ARRAYSIZE(message), WASABI_API_LNGSTRINGW(IDS_ABOUT_TEXT),
-				     plugin.description, WACUP_Author(), WACUP_Copyright(), __DATE__);
-	AboutMessageBox(hwndParent, message, (LPCWSTR)WASABI_API_LNGSTRINGW(IDS_ABOUT_TITLE));
+    PrintfCch(message, ARRAYSIZE(message), LangString(IDS_ABOUT_TEXT),
+			  plugin.description, WACUP_Author(), WACUP_Copyright(), __DATE__);
+	AboutMessageBox(hwndParent, message, (LPCWSTR)LangString(IDS_ABOUT_TITLE));
 }
 
 /* the Dll initializer */
@@ -178,7 +179,7 @@ extern "C" __declspec( dllexport ) In_Module * winampGetInModule2()
 extern "C" __declspec(dllexport) int winampUninstallPlugin(HINSTANCE hDllInst, HWND hwndDlg, int param)
 {
     // prompt to remove our settings with default as no (just incase)
-    /*if (plugin.language->UninstallSettingsPrompt(reinterpret_cast<const wchar_t*>(plugin.description)))
+    /*if (UninstallSettingsPrompt(reinterpret_cast<const wchar_t*>(plugin.description)))
     {
         SaveNativeIniString(WINAMP_INI, L"in_flac", 0, 0);
     }*/
@@ -271,7 +272,7 @@ extern "C" __declspec(dllexport) int winampGetExtendedFileInfoW(const wchar_t* f
 
             if (pID != -1)
             {
-                WASABI_API_LNGSTRINGW_BUF(pID, dest, destlen);
+                LngStringCopy(pID, dest, destlen);
                 return 1;
             }
         }

@@ -43,12 +43,12 @@ static int set_driver_filename(HWND hDlg, UINT uIdc,  char *drvpath)
 {
   char buf[_MAX_PATH] ;
 
-  StringCchCopyA(buf, _MAX_PATH, drvpath) ;
+  CopyCchStrA(buf, _MAX_PATH, drvpath) ;
   //buf[_MAX_PATH-1]='\0' ;
   if(get_driver_filename(hDlg, buf, _MAX_PATH))
   {
     SetDlgItemTextA(hDlg, uIdc, buf);
-    StringCchCopyA(drvpath,_MAX_PATH, buf) ;
+    CopyCchStrA(drvpath,_MAX_PATH, buf) ;
     //drvpath[_MAX_PATH-1]='\0' ;
     return 1 ;
   }

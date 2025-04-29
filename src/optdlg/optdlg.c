@@ -12,7 +12,7 @@ static char *getLyrics(OPTDLG *__this)
 {
   int i, now;
 
-  StringCchCopyA(__this->lyrics_buf[__this->lyrics_pos], 80, MSXPLUG_getMGStext());
+  CopyCchStrA(__this->lyrics_buf[__this->lyrics_pos], 80, MSXPLUG_getMGStext());
   __this->lyrics_buf_time[__this->lyrics_pos] = MSXPLUG_getDecodeTime();
   now = MSXPLUG_getOutputTime();
 
@@ -140,7 +140,7 @@ static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 	{
   case WM_TIMER:
 	memset(tmp, '\0', sizeof(tmp));
-    StringCchCopyA(tmp,80,getLyrics(__this));
+    CopyCchStrA(tmp,80,getLyrics(__this));
     GetClientRect(hDlg,&rect);
     FillRect(__this->hDC, &rect, (HBRUSH)GetStockObject(WHITE_BRUSH));
     TextOutA(__this->hDC, 4, 4, getLyrics(__this), (int)strlen(tmp));

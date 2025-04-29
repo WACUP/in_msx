@@ -31,8 +31,6 @@
 
 In_Module * winampGetInModule2() ;
 
-extern char* safe_strdup(char* str);
-
 enum {STR_PARAM, INT_PARAM} ;
 enum {FMT_NONE, FMT_DEC, FMT_DB, FMT_TIME, FMT_BOOL, FMT_PERC} ; 
 
@@ -68,7 +66,7 @@ static CONFIG_PARAM *new_param(char *name, __int32 min, __int32 max)
     //memset(p,0,sizeof(CONFIG_PARAM));
     /*if(!(p->name=(char *)malloc(strlen(name)+1))) goto Error_Exit;
     strcpy(p->name,name);*/
-    if (!(p->name = safe_strdup(name))) goto Error_Exit;
+    if (!(p->name = SafeAnsiDup(name))) goto Error_Exit;
     p->max = max;
     p->min = min;
   }
@@ -121,7 +119,8 @@ static void add_param(CONFIG *config, char *name, int type, int size, int format
       {
       case INT_PARAM:
         p->data = malloc(sizeof(__int32)*size);
-        memcpy(p->data,def,sizeof(__int32)*size);
+        if (p->data)
+          memcpy(p->data,def,sizeof(__int32)*size);
         break;
       default:
         p->data = NULL;
