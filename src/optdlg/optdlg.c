@@ -239,7 +239,7 @@ void OPTDLG_open(OPTDLG *__this, HWND hParent, HINSTANCE hInst)
   if(!__this->dialog)
   {
     RECT rect;
-    __this->dialog = CreateDialog(hInst, MAKEINTRESOURCE(IDD_OPTDLG), hParent, dlgProc ) ;
+    __this->dialog = CreateDialogParam(hInst, MAKEINTRESOURCE(IDD_OPTDLG), hParent, dlgProc, 0) ;
     assert(__this->dialog) ;
     SetProp(__this->dialog, TEXT("OPT"), __this) ;
     SetTimer(__this->dialog, 1, FRAME_PERIOD, NULL) ;

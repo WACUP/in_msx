@@ -196,7 +196,7 @@ void KSSDLG_open(KSSDLG *kssdlg, HINSTANCE hInst, HWND hParent)
 {
   if(!kssdlg->dialog)
   {
-    kssdlg->dialog = CreateDialog(hInst, MAKEINTRESOURCE(IDD_KSSDLG), hParent, dlgProc ) ;
+    kssdlg->dialog = CreateDialogParam(hInst, MAKEINTRESOURCE(IDD_KSSDLG), hParent, dlgProc, 0) ;
     assert(kssdlg->dialog) ;
     SetProp(kssdlg->dialog, TEXT("INFO"), kssdlg) ;
     setDefaultGuiFont(GetDlgItem(kssdlg->dialog, IDC_TITLE));

@@ -178,7 +178,7 @@ void MASKDLG_open(MASKDLG *dlg, HWND hParent, HINSTANCE hInst)
 {
   if(!dlg->dialog)
   {
-    dlg->dialog = CreateDialog(hInst, MAKEINTRESOURCE(IDD_MASKDLG), hParent, dlgProc ) ;
+    dlg->dialog = CreateDialogParam(hInst, MAKEINTRESOURCE(IDD_MASKDLG), hParent, dlgProc, 0) ;
     assert(dlg->dialog) ;
     SetProp(dlg->dialog, TEXT("INFO"), dlg) ;
     update(dlg,FALSE);

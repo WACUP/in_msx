@@ -608,7 +608,7 @@ void PLSDLG_open(PLSDLG *plsdlg,HINSTANCE hInst, HWND hWinamp)
   if(!plsdlg->hDialog)
   {
     plsdlg->hWinamp = hWinamp ;
-    plsdlg->hDialog = CreateDialog(hInst,MAKEINTRESOURCE(IDD_PLSDLG), hWinamp, dlgProc) ;
+    plsdlg->hDialog = CreateDialogParam(hInst,MAKEINTRESOURCE(IDD_PLSDLG), hWinamp, dlgProc, 0) ;
     assert(plsdlg->hDialog) ;
     SetProp(plsdlg->hDialog, TEXT("PLSDLG"),plsdlg) ;
     plsdlg->hPrev=(HICON)LoadImage(hInst,MAKEINTRESOURCE(IDI_PREV),IMAGE_ICON,16,16,LR_DEFAULTCOLOR);

@@ -64,7 +64,7 @@ static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 HWND CreateMixerControl(HINSTANCE hInst, HWND hWndParent, char *title, int min, int max)
 {
   HWND hwnd ;
-  hwnd = CreateDialog(hInst, MAKEINTRESOURCE(IDD_MIXER), hWndParent, dlgProc) ;
+  hwnd = CreateDialogParam(hInst, MAKEINTRESOURCE(IDD_MIXER), hWndParent, dlgProc, 0) ;
 
   SetWindowTextA(hwnd, title) ;
   SendDlgItemMessage(hwnd, IDC_MIXER_SLIDER, TBM_SETRANGE, TRUE, MAKELONG(min,max)) ;

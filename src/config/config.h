@@ -40,7 +40,7 @@ typedef struct
   HWND hWinamp ;
   HWND dialog ;
   HWND status ;
-  DLGPROC dlgProc ;
+  //DLGPROC dlgProc ;
   HICON hYM2413 ;
   
   PANDLG *pandlg;

@@ -394,7 +394,7 @@ void EDIT2413_open(EDIT2413 *edit2413, HWND hwndParent, HINSTANCE hInst)
   {
     if(edit2413->hMain==NULL)
     {
-      edit2413->hMain = CreateDialog(hInst, MAKEINTRESOURCE(IDD_EDIT2413), hwndParent, dlgProc) ;
+      edit2413->hMain = CreateDialogParam(hInst, MAKEINTRESOURCE(IDD_EDIT2413), hwndParent, dlgProc, 0) ;
       SetDlgItemPos(edit2413->hMain,IDC_LOGO,NULL,0,0,57*2,23*2,SWP_NOMOVE) ;
       edit2413->cursel = 0 ;
 

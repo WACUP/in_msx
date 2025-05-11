@@ -106,7 +106,7 @@ void PANDLG_open(PANDLG *dlg, HWND hParent)
 
   if(!dlg->hDialog)
   {
-    dlg->hDialog = CreateDialog(dlg->hInst, MAKEINTRESOURCE(IDD_PANDLG), hParent, PANDLG_dlgProc);
+    dlg->hDialog = CreateDialogParam(dlg->hInst, MAKEINTRESOURCE(IDD_PANDLG), hParent, PANDLG_dlgProc, 0);
     pan = CONFIG_get_int(dlg->config,"OPLL_CH_PAN");
     for(int i=0;i<14;i++)
     {

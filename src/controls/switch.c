@@ -55,7 +55,7 @@ static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 HWND CreateSwitchControl(HINSTANCE hInst, HWND hWndParent, char *title)
 {
   HWND hwnd ;
-  hwnd = CreateDialog(hInst, MAKEINTRESOURCE(IDD_SWITCH), hWndParent, dlgProc) ;
+  hwnd = CreateDialogParam(hInst, MAKEINTRESOURCE(IDD_SWITCH), hWndParent, dlgProc, NULL) ;
   SetWindowTextA(hwnd, title) ; 
   return hwnd ; 
 }

@@ -285,8 +285,10 @@ extern "C" __declspec(dllimport) BOOL SaveFileName(LPOPENFILENAMEW ofn);
 
 extern "C" int get_illfilename(HWND hWnd, char* buf, int max, int mode)
 {
+    wchar_t bufw[_MAX_PATH]/* = { 0 }*/;
+    bufw[0] = 0;
+
     OPENFILENAMEW ofn = { 0 };
-    wchar_t bufw[_MAX_PATH] = { 0 };
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = hWnd;
     ofn.lpstrFilter = L"ILL Files(*.ill)\0*.ill\0All Files(*.*)\0*.*\0\0";
@@ -317,8 +319,10 @@ extern "C" int get_illfilename(HWND hWnd, char* buf, int max, int mode)
 
 extern "C" int get_driver_filename(HWND hWnd, char* buf, int max)
 {
+    wchar_t bufw[_MAX_PATH]/* = { 0 }*/;
+    bufw[0] = 0;
+
     OPENFILENAME ofn = { 0 };
-    wchar_t bufw[_MAX_PATH] = { 0 };
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = hWnd;
     ofn.lpstrFilter = L"All Files(*.*)\0*.*\0\0";
@@ -336,8 +340,10 @@ extern "C" int get_driver_filename(HWND hWnd, char* buf, int max)
 
 extern "C" int get_filename(HWND hWnd, char* buf, int max)
 {
+    wchar_t bufw[_MAX_PATH]/* = { 0 }*/;
+    bufw[0] = 0;
+
     OPENFILENAME ofn = { 0 };
-    wchar_t bufw[_MAX_PATH] = { 0 };
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = hWnd;
     ofn.lpstrFilter = L"Playlist Files(*.pls)\0*.pls\0All Files(*.*)\0*.*\0\0";
@@ -356,7 +362,7 @@ extern "C" int get_filename(HWND hWnd, char* buf, int max)
 #include <../common/browse.h>
 extern "C" UINT GetOpenFolderName(HWND hWnd, LPCSTR lpszDefaultFolder, char* buf, int buflen)
 {
-    wchar_t  szSelectedFolder[MAX_PATH] = { 0 };
+    wchar_t  szSelectedFolder[MAX_PATH]/* = { 0 }*/;
     ConvertANSIFn(szSelectedFolder, ARRAYSIZE(szSelectedFolder), buf, CP_ACP);
     //Browse_Folders_SetStyle(BIF_USENEWUI | BIF_NONEWFOLDERBUTTON);
     if (Browse_Folders(hWnd, szSelectedFolder, ARRAYSIZE(szSelectedFolder), L"Select a folder"))

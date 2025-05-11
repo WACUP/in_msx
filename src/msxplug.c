@@ -502,7 +502,7 @@ void MSXPLUG_quit()
 #if 0
   PLSITEM *item ;
 
-  char filepath[_MAX_PATH] = { 0 };
+  char filepath[_MAX_PATH]/* = { 0 }*//*;
   ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), fn, CP_ACP);
 
   MSXPLUG_init();
@@ -837,7 +837,7 @@ int MSXPLUG_play(const in_char *fn) {
   if(plsdlg&&plsdlg->sync)
     PLSDLG_set_item(plsdlg,current_pos) ;
 
-  char filepath[_MAX_PATH] = { 0 };
+  char filepath[_MAX_PATH]/* = { 0 }*/;
   ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), fn, CP_ACP);
   if(play_setup(filepath))
   {
@@ -1009,7 +1009,7 @@ int MSXPLUG_plsdlg(HWND hwnd)
 int MSXPLUG_infoDlg(const in_char *fn, HWND hwnd)
 {
   PLSITEM *item ;
-  char filepath[_MAX_PATH] = { 0 };
+  char filepath[_MAX_PATH]/* = { 0 }*/;
   ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), fn, CP_ACP);
   item = PLSITEM_new(filepath) ;
   KSSDLG_open(kssdlg, plugin.hDllInstance, plugin.hMainWindow) ;
@@ -1037,7 +1037,7 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
     strncpy(title, (char*)current_kss->title, MAXLEN);
     title[MAXLEN] = '\0';
 #else
-    wchar_t* wtitle = ConvertANSI((char*)current_kss->title, -1, CP_ACP, NULL, 0);
+    wchar_t* wtitle = ConvertANSI((char*)current_kss->title, -1, CP_ACP, NULL, 0, NULL);
     if (wtitle)
     {
         CopyCchStr(title, GETFILEINFO_TITLE_LENGTH, wtitle);
@@ -1053,7 +1053,7 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
     
   if(filename)
   {
-    char filepath[_MAX_PATH] = { 0 };
+    char filepath[_MAX_PATH]/* = { 0 }*/;
     ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), filename, CP_ACP);
     item = PLSITEM_new(filepath) ;
 
@@ -1076,7 +1076,7 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
       strncpy(title, item->title, MAXLEN);
       title[MAXLEN] = '\0';
 #else
-      wchar_t* wtitle = ConvertANSI(item->title, -1, CP_ACP, NULL, 0);
+      wchar_t* wtitle = ConvertANSI(item->title, -1, CP_ACP, NULL, 0, NULL);
       if (wtitle)
       {
           CopyCchStr(title, GETFILEINFO_TITLE_LENGTH, wtitle);
@@ -1094,7 +1094,7 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
         strncpy(title, item->filename, MAXLEN);
         title[MAXLEN] = '\0';
 #else
-        wchar_t* wtitle = ConvertANSI(item->filename, -1, CP_ACP, NULL, 0);
+        wchar_t* wtitle = ConvertANSI(item->filename, -1, CP_ACP, NULL, 0, NULL);
         if (wtitle)
         {
             CopyCchStr(title, GETFILEINFO_TITLE_LENGTH, wtitle);
@@ -1114,7 +1114,7 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
         strncpy(title, (char*)kss->title, MAXLEN);
         title[MAXLEN] = '\0';
 #else
-        wchar_t* wtitle = ConvertANSI((char*)kss->title, -1, CP_ACP, NULL, 0);
+        wchar_t* wtitle = ConvertANSI((char*)kss->title, -1, CP_ACP, NULL, 0, NULL);
         if (wtitle)
         {
             CopyCchStr(title, GETFILEINFO_TITLE_LENGTH, wtitle);
