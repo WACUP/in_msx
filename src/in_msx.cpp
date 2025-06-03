@@ -363,9 +363,9 @@ extern "C" int get_filename(HWND hWnd, char* buf, int max)
 extern "C" UINT GetOpenFolderName(HWND hWnd, LPCSTR lpszDefaultFolder, char* buf, int buflen)
 {
     wchar_t  szSelectedFolder[MAX_PATH]/* = { 0 }*/;
-    ConvertANSIFn(szSelectedFolder, ARRAYSIZE(szSelectedFolder), buf, CP_ACP);
     //Browse_Folders_SetStyle(BIF_USENEWUI | BIF_NONEWFOLDERBUTTON);
-    if (Browse_Folders(hWnd, szSelectedFolder, ARRAYSIZE(szSelectedFolder), L"Select a folder"))
+    if (Browse_Folders(hWnd, ConvertANSIFn(szSelectedFolder, ARRAYSIZE(szSelectedFolder),
+                          buf, CP_ACP), ARRAYSIZE(szSelectedFolder), L"Select a folder"))
     {
         ConvertUnicodeFn(buf, buflen, szSelectedFolder, CP_ACP);
         return IDOK;

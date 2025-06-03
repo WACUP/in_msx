@@ -838,8 +838,7 @@ int MSXPLUG_play(const in_char *fn) {
     PLSDLG_set_item(plsdlg,current_pos) ;
 
   char filepath[_MAX_PATH]/* = { 0 }*/;
-  ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), fn, CP_ACP);
-  if(play_setup(filepath))
+  if(play_setup(ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), fn, CP_ACP)))
   {
     play_arg = 0 ;
     return 1 ;
@@ -1010,8 +1009,7 @@ int MSXPLUG_infoDlg(const in_char *fn, HWND hwnd)
 {
   PLSITEM *item ;
   char filepath[_MAX_PATH]/* = { 0 }*/;
-  ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), fn, CP_ACP);
-  item = PLSITEM_new(filepath) ;
+  item = PLSITEM_new(ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), fn, CP_ACP)) ;
   KSSDLG_open(kssdlg, plugin.hDllInstance, plugin.hMainWindow) ;
 
   if(strcmp(filepath,current_file)==0)
@@ -1054,8 +1052,7 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
   if(filename)
   {
     char filepath[_MAX_PATH]/* = { 0 }*/;
-    ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), filename, CP_ACP);
-    item = PLSITEM_new(filepath) ;
+    item = PLSITEM_new(ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), filename, CP_ACP)) ;
 
     if(item->time_in_ms<=0) *length_in_ms = 0 ;
     else
