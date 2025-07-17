@@ -159,7 +159,7 @@ int Init(void)
 
 void About(HWND hwndParent)
 {
-	wchar_t message[1024] = { 0 };
+	wchar_t message[1024]/* = { 0 }*/;
     PrintfCch(message, ARRAYSIZE(message), LangString(IDS_ABOUT_TEXT),
 			  plugin.description, WACUP_Author(), WACUP_Copyright(), __DATE__);
 	AboutMessageBox(hwndParent, message, (LPCWSTR)LangString(IDS_ABOUT_TITLE));

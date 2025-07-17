@@ -1035,12 +1035,8 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
     strncpy(title, (char*)current_kss->title, MAXLEN);
     title[MAXLEN] = '\0';
 #else
-    wchar_t* wtitle = ConvertANSI((char*)current_kss->title, -1, CP_ACP, NULL, 0, NULL);
-    if (wtitle)
-    {
-        CopyCchStr(title, GETFILEINFO_TITLE_LENGTH, wtitle);
-        SafeFree(wtitle);
-    }
+    ConvertANSI((char*)current_kss->title, -1, CP_ACP,
+                title, GETFILEINFO_TITLE_LENGTH, NULL);
 #endif
 
     if(play_time_unknown) *length_in_ms = 0 ;
@@ -1073,12 +1069,8 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
       strncpy(title, item->title, MAXLEN);
       title[MAXLEN] = '\0';
 #else
-      wchar_t* wtitle = ConvertANSI(item->title, -1, CP_ACP, NULL, 0, NULL);
-      if (wtitle)
-      {
-          CopyCchStr(title, GETFILEINFO_TITLE_LENGTH, wtitle);
-          SafeFree(wtitle);
-      }
+      ConvertANSI(item->title, -1, CP_ACP, title,
+                  GETFILEINFO_TITLE_LENGTH, NULL);
 #endif
     }
     else
@@ -1091,12 +1083,8 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
         strncpy(title, item->filename, MAXLEN);
         title[MAXLEN] = '\0';
 #else
-        wchar_t* wtitle = ConvertANSI(item->filename, -1, CP_ACP, NULL, 0, NULL);
-        if (wtitle)
-        {
-            CopyCchStr(title, GETFILEINFO_TITLE_LENGTH, wtitle);
-            SafeFree(wtitle);
-        }
+        ConvertANSI(item->filename, -1, CP_ACP, title,
+                      GETFILEINFO_TITLE_LENGTH, NULL);
 #endif
       }
       else
@@ -1111,12 +1099,8 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
         strncpy(title, (char*)kss->title, MAXLEN);
         title[MAXLEN] = '\0';
 #else
-        wchar_t* wtitle = ConvertANSI((char*)kss->title, -1, CP_ACP, NULL, 0, NULL);
-        if (wtitle)
-        {
-            CopyCchStr(title, GETFILEINFO_TITLE_LENGTH, wtitle);
-            SafeFree(wtitle);
-        }
+        ConvertANSI((char*)kss->title, -1, CP_ACP, title,
+                         GETFILEINFO_TITLE_LENGTH, NULL);
 #endif
         KSS_delete(kss) ;
       }
