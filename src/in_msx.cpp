@@ -110,25 +110,25 @@ void GetFileExtensions(void)
 {
 	if (!plugin.FileExtensions)
 	{
-        LPCWSTR extensions[] =
+        const InputFileListArray extensions[] =
         {
-            extension_list[0].ext,
-            extension_list[1].ext,
-            extension_list[2].ext,
-            extension_list[3].ext,
-            extension_list[4].ext,
-            extension_list[5].ext,
-            extension_list[6].ext
+            { extension_list[0].ext, 3 },
+            { extension_list[1].ext, 3 },
+            { extension_list[2].ext, 3 },
+            { extension_list[3].ext, 3 },
+            { extension_list[4].ext, 3 },
+            { extension_list[5].ext, 3 },
+            { extension_list[6].ext, 3 }
         },
             descriptions[] =
         {
-            (LPCWSTR)extension_list[0].id,
-            (LPCWSTR)extension_list[1].id,
-            (LPCWSTR)extension_list[2].id,
-            (LPCWSTR)extension_list[3].id,
-            (LPCWSTR)extension_list[4].id,
-            (LPCWSTR)extension_list[5].id,
-            (LPCWSTR)extension_list[6].id
+            { (LPCWSTR)extension_list[0].id, 0 },
+            { (LPCWSTR)extension_list[1].id, 0 },
+            { (LPCWSTR)extension_list[2].id, 0 },
+            { (LPCWSTR)extension_list[3].id, 0 },
+            { (LPCWSTR)extension_list[4].id, 0 },
+            { (LPCWSTR)extension_list[5].id, 0 },
+            { (LPCWSTR)extension_list[6].id, 0 }
         };
 
 		plugin.FileExtensions = BuildInputFileListArrayString(extensions, descriptions, ARRAYSIZE(extensions),
@@ -141,7 +141,7 @@ int Init(void)
     StartPluginLangWithDesc(plugin.hDllInstance, InMSXLangGUID, IDS_PLUGIN_NAME,
 							               PLUGIN_VERSION, &plugin.description);
 
-    /*preferences = (prefsDlgRecW*)GlobalAlloc(GPTR, sizeof(prefsDlgRecW));
+    /*preferences = (prefsDlgRecW*)SafeMalloc(sizeof(prefsDlgRecW));
     if (preferences)
     {
         preferences->hInst = GetModuleHandleW(GetPaths()->wacup_core_dll);
