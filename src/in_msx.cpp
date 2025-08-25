@@ -84,11 +84,12 @@ extern "C" In_Module plugin =
 extern "C" BOOL force_mono(void)
 {
     // {B6CB4A7C-A8D0-4c55-8E60-9F7A7A23DA0F}
-    const GUID playbackConfigGroupGUID =
+    /*const GUID playbackConfigGroupGUID =
     {
         0xb6cb4a7c, 0xa8d0, 0x4c55, { 0x8e, 0x60, 0x9f, 0x7a, 0x7a, 0x23, 0xda, 0xf }
     };
-    return !!plugin.config->GetBool(playbackConfigGroupGUID, L"mono", false);
+    return !!plugin.config->GetBool(playbackConfigGroupGUID, L"mono", false);/*/
+    return PlaybackIsMono();/**/
 }
 
 const struct

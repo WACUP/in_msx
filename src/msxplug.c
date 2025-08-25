@@ -1155,9 +1155,7 @@ static void play_start()
 {
   if(thread_handle!=INVALID_HANDLE_VALUE) return ;
   killPlayThread = 0 ;
-  thread_handle = StartThread(PlayThread, &killPlayThread, /*plugin.config->
-							  GetInt(playbackConfigGroupGUID, L"priority",
-								   */THREAD_PRIORITY_HIGHEST/*)*/, 0, NULL);
+  thread_handle = StartPlaybackThread(PlayThread, &killPlayThread, 0, NULL);
 }
 
 static void play_stop()
