@@ -151,9 +151,12 @@ int Init(void)
         preferences->proc = ConfigDialogProc;
         preferences->where = 10;
         preferences->_id = 99;
-        preferences->next = (_prefsDlgRec*)0xACE;
+        preferences->next = PREFS_INTERNAL_INIT_NEXT;
         AddPrefsPage((WPARAM)preferences, TRUE);
-    }*/
+    }
+
+    InputAddPrefsPage(&preferences, GetModuleHandleW(GetPaths()->wacup_core_dll),
+           IDD_TABBED_PREFS_DIALOG, ConfigDialogProc, LngStringDup(IDS_NSF), 99);*/
 
     return IN_INIT_SUCCESS;
 }

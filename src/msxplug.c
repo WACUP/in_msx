@@ -1026,10 +1026,13 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
 {
   const int MAXLEN = _MAX_PATH ;
   PLSITEM *item ;
+  char filepath[_MAX_PATH]/* = { 0 }*/;
 
   MSXPLUG_init();
 
-  if((!filename)||(!filename[0]))
+  ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), filename, CP_ACP);
+
+  if((!filename)||(!filename[0])||SameStrA(filepath,current_file))
   {
 #ifndef WACUP_BUILD
     strncpy(title, (char*)current_kss->title, MAXLEN);
@@ -1038,19 +1041,26 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
     ConvertANSI((char*)current_kss->title, -1, CP_ACP,
                 title, GETFILEINFO_TITLE_LENGTH, NULL);
 #endif
-
-    if(play_time_unknown) *length_in_ms = 0 ;
+    if (length_in_ms)
+    {
+      if (play_time_unknown) *length_in_ms = -1000;
     else if(loop_num) *length_in_ms = play_time + fade_time ;
-    else *length_in_ms = 0 ;
+      else *length_in_ms = -1000;
+    }
     return ;
   }
     
   if(filename)
   {
-    char filepath[_MAX_PATH]/* = { 0 }*/;
-    item = PLSITEM_new(ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), filename, CP_ACP)) ;
+    item = PLSITEM_new(filepath) ;
 
-    if(item->time_in_ms<=0) *length_in_ms = 0 ;
+    if(item->time_in_ms<=0)
+    {
+      if (length_in_ms)
+      {
+        *length_in_ms = -1000;
+      }
+    }
     else
     {
       PLSITEM_adjust(item, 
@@ -1058,9 +1068,12 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
         CONFIG_get_int(cfg,"FADETIME"), 
         CONFIG_get_int(cfg,"LOOP"),
         cfg->vol) ;
+      if (length_in_ms)
+      {
       *length_in_ms = item->time_in_ms + item->fade_in_ms ;
       if(item->loop_num) *length_in_ms += item->loop_in_ms * (item->loop_num - 1) ;
-      else *length_in_ms = 0 ;
+        else *length_in_ms = -1000;
+      }
     }
 
     if(item->title)
