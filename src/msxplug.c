@@ -853,8 +853,12 @@ int MSXPLUG_play(const in_char *fn) {
   }
 	
   plugin.SetInfo((RATE*BPS*NCH)/1000,RATE/1000,NCH,1);
+#ifndef _WIN64
   plugin.SAVSAInit(maxlatency,RATE);
   plugin.VSASetInfo(RATE,NCH);
+#else
+  plugin.VisInitInfo(maxlatency,RATE,NCH);
+#endif
   plugin.outMod->SetVolume(-666);
   plugin.outMod->Flush(0) ;
   flush_flag = 1 ;
@@ -1044,7 +1048,7 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
     if (length_in_ms)
     {
       if (play_time_unknown) *length_in_ms = -1000;
-    else if(loop_num) *length_in_ms = play_time + fade_time ;
+      else if (loop_num) *length_in_ms = play_time + fade_time;
       else *length_in_ms = -1000;
     }
     return ;
@@ -1070,8 +1074,8 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
         cfg->vol) ;
       if (length_in_ms)
       {
-      *length_in_ms = item->time_in_ms + item->fade_in_ms ;
-      if(item->loop_num) *length_in_ms += item->loop_in_ms * (item->loop_num - 1) ;
+        *length_in_ms = item->time_in_ms + item->fade_in_ms;
+        if (item->loop_num) *length_in_ms += item->loop_in_ms * (item->loop_num - 1);
         else *length_in_ms = -1000;
       }
     }

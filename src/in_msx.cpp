@@ -31,9 +31,16 @@ int Init(void);
 void About(HWND hwndParent);
 void GetFileExtensions(void);
 
+#define OUR_INPUT_PLUG_IN_FEATURES /* TODO finish this off so things can be enabled*/ \
+                                   INPUT_HAS_READ_META | /*INPUT_HAS_WRITE_META |*/ \
+                                   INPUT_USES_UNIFIED_ALT3 /*| \
+                                   INPUT_HAS_FORMAT_CONVERSION_UNICODE | \
+                                   INPUT_HAS_FORMAT_CONVERSION_SET_TIME_MODE*/
+
 extern "C" In_Module plugin =
 {
     IN_VER_WACUP, // module type
+    IN_INIT_PRE_FEATURES
 	"MSXplug "PLUGIN_VERSION, // description of module, with version string
     0,	/* hMainWindow (filled in by winamp after init() ) */
     0,  /* hDllInstance ( Also filled in by winamp) */
@@ -72,11 +79,7 @@ extern "C" In_Module plugin =
     NULL,	// setinfo
     NULL,	// out_mod
     NULL,	// api_service
-    // TODO finish this off so things can be enabled
-    INPUT_HAS_READ_META | /*INPUT_HAS_WRITE_META |*/
-    INPUT_USES_UNIFIED_ALT3 /*|
-    INPUT_HAS_FORMAT_CONVERSION_UNICODE |
-    INPUT_HAS_FORMAT_CONVERSION_SET_TIME_MODE*/,
+    IN_INIT_POST_FEATURES
     GetFileExtensions,	// loading optimisation
     IN_INIT_WACUP_END_STRUCT
 };
