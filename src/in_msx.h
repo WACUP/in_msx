@@ -2,7 +2,7 @@
 #define _IN_MSX_H_
 
 #define PLUGIN_NAME "in_msx"
-#define PLUGIN_VERSION TEXT("1.9.16")
+#define PLUGIN_VERSION TEXT("1.9.18")
 
 #ifndef WACUP_BUILD
 #define IN_MSX_ABOUT                                    \

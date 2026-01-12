@@ -82,7 +82,9 @@ static void set_string(CONFIG_PARAM *p, char *val)
   free(p->data);
   p->data = malloc(strlen(val)+1);
   if(p->data) strcpy((char *)p->data, val);
+#ifndef WACUP_BUILD
   else MessageBox(NULL,TEXT("OUTOFMEMORY"), TEXT("OUTOFMEMORY"),MB_OK);
+#endif
 }
 
 static void add_param(CONFIG *config, char *name, int type, int size, int format, __int32 min, __int32 max, void *def)
@@ -615,7 +617,7 @@ void CONFIG_rd_textbox(CONFIG *config, HWND hDlg, char *name, int idc)
 {
   char buf[512];
 
-  GetWindowTextA(GetDlgItem(hDlg,idc),buf,512);
+  GetWindowTextA(GetDlgItem(hDlg,idc),buf,ARRAYSIZE(buf));
   CONFIG_text2param(config,buf,name);
 }
 

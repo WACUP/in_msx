@@ -237,27 +237,30 @@ extern "C" __declspec(dllexport) int winampGetExtendedFileInfoW(const wchar_t* f
     }
     else if (SameStrA(data, "bitrate"))
     {
+        int ret = 0;
         MSXPLUG_init();
         MSXPLUG_get_channel_output_config();
-        I2WStr((RATE * BPS * NCH), dest, destlen);
-        return 1;
+        I2WStrLen((RATE * BPS * NCH), dest, destlen, &ret);
+        return ret;
     }
     else if (SameStrA(data, "samplerate"))
     {
+        int ret = 0;
         MSXPLUG_init();
         MSXPLUG_get_channel_output_config();
-        I2WStr(RATE, dest, destlen);
-        return 1;
+        I2WStrLen(RATE, dest, destlen, &ret);
+        return ret;
     }
     else if (SameStrA(data, "bitdepth"))
     {
         // TODO not sure on this as it's set
         //      to use the configured output
         //      mode otherwise it's not real
+        int ret = 0;
         MSXPLUG_init();
         MSXPLUG_get_channel_output_config();
-        I2WStr(BPS, dest, destlen);
-        return 1;
+        I2WStrLen(BPS, dest, destlen, &ret);
+        return ret;
     }
 
     if (!fn || !fn[0])
@@ -281,8 +284,9 @@ extern "C" __declspec(dllexport) int winampGetExtendedFileInfoW(const wchar_t* f
 
             if (pID != -1)
             {
-                LngStringCopy(pID, dest, destlen);
-                return 1;
+                size_t copied = 0;
+                LngStringCopyGetLen(pID, dest, destlen, &copied);
+                return (int)copied;
             }
         }
     }
@@ -369,14 +373,15 @@ extern "C" int get_filename(HWND hWnd, char* buf, int max)
 }
 
 #include <../common/browse.h>
-extern "C" UINT GetOpenFolderName(HWND hWnd, LPCSTR lpszDefaultFolder, char* buf, int buflen)
+extern "C" UINT GetOpenFolderName(HWND hWnd, wchar_t* buf, const int buflen)
 {
-    wchar_t  szSelectedFolder[MAX_PATH]/* = { 0 }*/;
+    wchar_t szSelectedFolder[MAX_PATH]/* = { 0 }*/;
+    CopyCchStr(szSelectedFolder, ARRAYSIZE(szSelectedFolder), buf);
     //Browse_Folders_SetStyle(BIF_USENEWUI | BIF_NONEWFOLDERBUTTON);
-    if (Browse_Folders(hWnd, ConvertANSIFn(szSelectedFolder, ARRAYSIZE(szSelectedFolder),
-                          buf, CP_ACP), ARRAYSIZE(szSelectedFolder), L"Select a folder"))
+    // TODO localise
+    if (Browse_Folders(hWnd, szSelectedFolder, ARRAYSIZE(szSelectedFolder), L"Select a folder"))
     {
-        ConvertUnicodeFn(buf, buflen, szSelectedFolder, CP_ACP);
+        CopyCchStr(buf, buflen, szSelectedFolder);
         return IDOK;
     }
     return IDCANCEL;

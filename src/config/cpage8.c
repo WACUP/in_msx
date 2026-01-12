@@ -14,7 +14,7 @@
     return 0;
 }*/
 
-UINT GetOpenFolderName(HWND hWnd, LPCSTR lpszDefaultFolder, char* buf, int buflen)
+UINT GetOpenFolderName(HWND hWnd, wchar_t* buf, int buflen)
 /*{
   LPITEMIDLIST  pIDL;
   BROWSEINFOA  bi;
@@ -80,10 +80,13 @@ static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
   case WM_COMMAND:
     if(HIWORD(wParam)==BN_CLICKED&&LOWORD(wParam)==IDC_MBKBTN)
     {
-      char szFolder[MAX_PATH];
-      GetWindowTextA(GetDlgItem(hDlg,IDC_MBKPATH),szFolder,MAX_PATH);
-      if(GetOpenFolderName(hDlg, szFolder, szFolder, MAX_PATH)==IDOK)
-        SetDlgItemTextA(hDlg,IDC_MBKPATH,szFolder);
+      wchar_t szFolder[MAX_PATH];
+      if (!GetWindowText(GetDlgItem(hDlg, IDC_MBKPATH), szFolder, ARRAYSIZE(szFolder)))
+      {
+          szFolder[0] = 0;
+      }
+      if(GetOpenFolderName(hDlg, szFolder, ARRAYSIZE(szFolder))==IDOK)
+        SetDlgItemText(hDlg,IDC_MBKPATH,szFolder);
       PropSheet_Changed(config->dialog, hDlg);
       return TRUE;      
     }
