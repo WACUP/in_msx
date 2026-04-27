@@ -151,7 +151,7 @@ void CONFIG_set_array_int(CONFIG *config, char *name, __int32 idx, __int32 val)
   CONFIG_PARAM *p;
 
   EnterCriticalSection(&config->cso);
-  if(p=find_param(config->param_list, name))
+  if((p=find_param(config->param_list, name)))
   {
     if(idx<p->size) ((__int32 *)p->data)[idx] = val;
     else
@@ -171,7 +171,7 @@ __int32 CONFIG_get_array_int(CONFIG *config, char *name, __int32 idx)
 {
   CONFIG_PARAM *p;
 
-  if(p=find_param(config->param_list, name))
+  if((p=find_param(config->param_list, name)))
   {
     if(idx<p->size)
     {
@@ -195,7 +195,7 @@ void CONFIG_set_int(CONFIG *config, char *name, __int32 val)
   CONFIG_PARAM *p;
 
   EnterCriticalSection(&config->cso);
-  if(p=find_param(config->param_list, name))
+  if((p=find_param(config->param_list, name)))
   {
     p->data = (void *)val;
   }
@@ -207,7 +207,7 @@ void CONFIG_set_str(CONFIG *config, char *name, char *val)
   CONFIG_PARAM *p;
 
   EnterCriticalSection(&config->cso);
-  if(p=find_param(config->param_list, name))
+  if((p=find_param(config->param_list, name)))
     set_string(p,val);
   LeaveCriticalSection(&config->cso);
 }
@@ -218,7 +218,7 @@ char *CONFIG_get_str(CONFIG *config, char *name)
   char *ret = NULL;
 
   EnterCriticalSection(&config->cso);
-  if(p = find_param(config->param_list, name))
+  if((p=find_param(config->param_list, name)))
   {
     ret = (char *)p->data;
   }
@@ -238,7 +238,7 @@ __int32 CONFIG_get_int(CONFIG *config, char *name)
   __int32 ret = 0;
 
   EnterCriticalSection(&config->cso);
-  if(p = find_param(config->param_list, name))
+  if((p=find_param(config->param_list, name)))
   {
     ret = (__int32)p->data;
   }
@@ -492,7 +492,7 @@ void CONFIG_rd_checkbtn(CONFIG *config, HWND hDlg, char *name, int idc)
 
 static void itot(char *buf, int time)
 {
-  int h,m,s,ss = 0 ;
+  int h,m,s,ss;
 
   ss = (time%1000) / 10 ;
   time /= 1000 ;
@@ -510,7 +510,7 @@ char *CONFIG_param2text(CONFIG *config, char *name)
   static char buf[16];
   CONFIG_PARAM *p;
 
-  if(p=find_param(config->param_list, name))
+  if((p=find_param(config->param_list, name)))
   {
     switch(p->type)
     {
@@ -564,7 +564,7 @@ void CONFIG_text2param(CONFIG *config, char *buf, char *name)
 {
   CONFIG_PARAM *p;
 
-  if(p=find_param(config->param_list, name))
+  if((p=find_param(config->param_list, name)))
   {
     switch(p->type)
     {

@@ -43,7 +43,7 @@ static void create_font(OPTDLG *__this, int nHeight, int nWidth)
   SelectObject(__this->hDC,(HBRUSH)GetStockObject(BLACK_BRUSH));
 }
 
-static void restrict_sizing(WPARAM wParam, LPARAM lParam, int min_w, int min_h, int max_w, int max_h)
+/*static void restrict_sizing(WPARAM wParam, LPARAM lParam, int min_w, int min_h, int max_w, int max_h)
 {
   LPRECT lpRect = (LPRECT)lParam;
   int width = lpRect->right - lpRect->left;
@@ -126,7 +126,7 @@ static void restrict_sizing(WPARAM wParam, LPARAM lParam, int min_w, int min_h, 
   default:
     break;
   }
-}
+}*/
 
 static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -227,11 +227,6 @@ void OPTDLG_close(OPTDLG *__this)
     DeleteObject((HGDIOBJ)__this->hFont);
     DeleteObject((HGDIOBJ)__this->hBitmap);
   }
-}
-
-static void setDefaultGuiFont(HWND hWnd)
-{
-  SendMessage(hWnd, WM_SETFONT, (WPARAM)GetStockObject(DEFAULT_GUI_FONT), MAKELPARAM(FALSE, 0));    
 }
 
 void OPTDLG_open(OPTDLG *__this, HWND hParent, HINSTANCE hInst)

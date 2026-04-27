@@ -330,7 +330,7 @@ void PLSITEM_delete(PLSITEM *elem)
 static char *print_time(int time)
 {
   static char buf[32] ;
-  int h,m,s,ss = 0 ;
+  int h,m,s,ss;
 
   if(time<0) return "" ;
 

@@ -5,21 +5,6 @@
 
 extern BOOL force_mono(void);
 
-static void print_time(char *buf, int time)
-{
-  int h,m,s,ss = 0 ;
-
-  ss = (time%1000) / 10 ;
-  time /= 1000 ;
-  s = time%60 ;
-  time /= 60 ;
-  m = time%60 ;
-  time /= 60 ;
-  h = time ;
-  
-  sprintf(buf,"%02d:%02d:%02d",h,m,s) ;
-}
-
 static void update_page(HWND hDlg, CONFIG *config)
 {
   int i,rate_list[] = {96000,49716,48000,44100,32000,22050,11025} ;

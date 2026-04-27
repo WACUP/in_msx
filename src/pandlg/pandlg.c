@@ -101,13 +101,13 @@ static INT_PTR CALLBACK PANDLG_dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPAR
 
 void PANDLG_open(PANDLG *dlg, HWND hParent)
 {
-  int x = 4, y = 4, pan;
+  int x = 4, y = 4/*, pan*/;
   char *LABEL[] = {"Ch 1","Ch 2","Ch 3","Ch 4","Ch 5","Ch 6","Ch 7","Ch 8","Ch 9","BD","HH","SD","TOM","CYM"};
 
   if(!dlg->hDialog)
   {
     dlg->hDialog = CreateDialogParam(dlg->hInst, MAKEINTRESOURCE(IDD_PANDLG), hParent, PANDLG_dlgProc, 0);
-    pan = CONFIG_get_int(dlg->config,"OPLL_CH_PAN");
+    /*pan = CONFIG_get_int(dlg->config,"OPLL_CH_PAN");*/
     for(int i=0;i<14;i++)
     {
       RECT rect;

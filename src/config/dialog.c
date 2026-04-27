@@ -7,20 +7,20 @@
 #include "config.h"
 #include "pandlg/pandlg.h"
 
-__declspec(dllimport) const INT_PTR CreatePropSheets(LPCPROPSHEETHEADERW lpcpsw);
+__declspec(dllimport) INT_PTR CreatePropSheets(LPCPROPSHEETHEADERW lpcpsw);
 
 static LRESULT CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam,
-                                UINT_PTR uIdSubclass, DWORD_PTR dwRefData)/*/
-static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)/**/
+                                UINT_PTR uIdSubclass, DWORD_PTR dwRefData)/*
+static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)*/
 {
   INT_PTR ret;
-  CONFIG * config = (CONFIG *)dwRefData/*/GetProp(hDlg, TEXT("CONFIG"))/**/ ;
+  CONFIG * config = (CONFIG *)dwRefData/*GetProp(hDlg, TEXT("CONFIG"))*/ ;
   switch(uMsg)
   {
   case WM_COMMAND:
     if((LOWORD(wParam)==IDOK)||(LOWORD(wParam)==IDCANCEL))
     {
-      ret = DefSubclass/*/config->dlgProc/**/(hDlg, uMsg, wParam, lParam) ;
+      ret = DefSubclass/*config->dlgProc*/(hDlg, uMsg, wParam, lParam) ;
       CONFIG_dialog_end(config) ;
       return ret ;
     }
@@ -29,7 +29,7 @@ static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
   case WM_DESTROY:
 	if (config->dialog)
 	{
-	  ret = DefSubclass/*/config->dlgProc/**/(hDlg, uMsg, wParam, lParam);
+	  ret = DefSubclass/*config->dlgProc*/(hDlg, uMsg, wParam, lParam);
 	  CONFIG_dialog_end(config);
 	  return ret;
 	}
@@ -38,7 +38,7 @@ static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
   case WM_SYSCOMMAND:
     if(wParam==SC_CLOSE)
     {
-      ret = DefSubclass/*/config->dlgProc/**/(hDlg, uMsg, wParam, lParam) ;
+      ret = DefSubclass/*config->dlgProc*/(hDlg, uMsg, wParam, lParam) ;
       CONFIG_dialog_end(config) ;
       return ret ;
     }
@@ -48,7 +48,7 @@ static INT_PTR CALLBACK dlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
     break;
   }
 
-  return DefSubclass/*/config->dlgProc/**/(hDlg, uMsg, wParam, lParam) ;
+  return DefSubclass/*config->dlgProc*/(hDlg, uMsg, wParam, lParam) ;
 }
 
 int CALLBACK PropSheetProc(HWND hwndDlg, UINT uMsg, LPARAM lParam)
@@ -106,9 +106,9 @@ void CONFIG_dialog_show(CONFIG *config, HWND hWnd, HINSTANCE hInst, int page)
     psh.pfnCallback = PropSheetProc;
 
     config->dialog = (HWND)CreatePropSheets(&psh) ;
-    Subclass(config->dialog, dlgProc, (const DWORD_PTR)config) ;/*/
+    Subclass(config->dialog, dlgProc, (const DWORD_PTR)config) ;/*
     SetProp(config->dialog, TEXT("CONFIG"), config) ;
-    config->dlgProc = (DLGPROC)SetWindowLongPtr(config->dialog,GWLP_WNDPROC,(LONG_PTR)dlgProc) ;/**/
+    config->dlgProc = (DLGPROC)SetWindowLongPtr(config->dialog,GWLP_WNDPROC,(LONG_PTR)dlgProc) ;*/
     if(!config->pandlg) config->pandlg = PANDLG_new(hInst, config) ;
   }
   PropSheet_SetCurSel(config->dialog,0,page) ;
@@ -118,9 +118,9 @@ void CONFIG_dialog_show(CONFIG *config, HWND hWnd, HINSTANCE hInst, int page)
 void CONFIG_dialog_end(CONFIG *config)
 {
   if(!config->dialog) return ;
-  UnSubclass(config->dialog, dlgProc) ;/*/
+  UnSubclass(config->dialog, dlgProc) ;/*
   RemoveProp(config->dialog, TEXT("CONFIG")) ;
-  SetWindowLongPtr(config->dialog,GWLP_WNDPROC,(LONG_PTR)config->dlgProc) ;/**/
+  SetWindowLongPtr(config->dialog,GWLP_WNDPROC,(LONG_PTR)config->dlgProc) ;*/
   DestroyWindow(config->dialog) ;
   config->dialog = NULL ;
   CONFIG_save(config) ;

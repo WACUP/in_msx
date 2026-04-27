@@ -13,17 +13,6 @@ static void update_page(HWND hDlg, CONFIG *config)
   CONFIG_wr_textbox(config, hDlg, "MBMDRV", IDC_MBMDRV_PATH);
 }
 
-static void update_config(HWND hDlg, CONFIG *config)
-{
-  CONFIG_rd_textbox(config, hDlg, "MGSDRV", IDC_MGSDRV_PATH);
-  CONFIG_rd_textbox(config, hDlg, "KINROU", IDC_KINROU_PATH);
-  CONFIG_rd_textbox(config, hDlg, "MPK103", IDC_MPK103_PATH);
-  CONFIG_rd_textbox(config, hDlg, "MPK106", IDC_MPK106_PATH);
-  CONFIG_rd_textbox(config, hDlg, "OPXDRV", IDC_OPXDRV_PATH);
-  CONFIG_rd_textbox(config, hDlg, "FMBIOS", IDC_FMBIOS_PATH);
-  CONFIG_rd_textbox(config, hDlg, "MBMDRV", IDC_MBMDRV_PATH);
-}
-
 /*static int get_driver_filename(HWND hWnd, char *buf, int max)
 {
   OPENFILENAMEA ofn ;

@@ -27,7 +27,7 @@ static UINT spins[4] = { IDC_PSGSPIN, IDC_SCCSPIN, IDC_OPLLSPIN, IDC_OPLSPIN } ;
 static void set_time_text(HWND hWnd, int time)
 {
   char buf[32] ;
-  int h,m,s,ss = 0 ;
+  int h,m,s,ss ;
 
   if(time<0)
   {
@@ -75,7 +75,7 @@ static int clip(int min, int val, int max)
 }
 
 /* find item position from Winamp Playlist */
-static int find_item(PLSDLG *plsdlg, char *text)
+/*static int find_item(PLSDLG *plsdlg, char *text)
 {
   int pos, max ;
   char *fn ;
@@ -89,7 +89,7 @@ static int find_item(PLSDLG *plsdlg, char *text)
   if(pos>max) return 0 ;
 
   return pos ;
-}
+}*/
 
 static void clean_pls(PLSDLG *plsdlg)
 {

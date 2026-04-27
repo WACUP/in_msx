@@ -15,7 +15,6 @@
 
 static char *LABEL[ENDPARAM] = { "TL","FB", "EG", "ML", "AR","DR","SL","RR","KR", "KL", "AM","PM","WF"} ;
 static int PARAMAX[ENDPARAM] = { 63 , 7 , 1, 15, 15, 15, 15, 15, 1, 3, 1, 1, 1 } ;
-static OPLL_PATCH dummy_patch ;
 
 static int read_patch_param(OPLL_PATCH *patch, int param)
 {

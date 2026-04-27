@@ -159,7 +159,7 @@ int Init(void)
     }
 
     InputAddPrefsPage(&preferences, GetModuleHandleW(GetPaths()->wacup_core_dll),
-           IDD_TABBED_PREFS_DIALOG, ConfigDialogProc, LngStringDup(IDS_NSF), 99);*/
+    IDD_TABBED_PREFS_DIALOG, (void*)ConfigDialogProc, LngStringDup(IDS_NSF), 99);*/
 
     return IN_INIT_SUCCESS;
 }

@@ -61,7 +61,6 @@ static int playlist_mode ;
 static int play_time ;
 static int song ;
 static int detect_mode ;
-static int detect_flag ; /* TURE while detecting. */
 static int play_time_unknown ;
 static int play_arg ; 
 
@@ -502,7 +501,7 @@ void MSXPLUG_quit()
 #if 0
   PLSITEM *item ;
 
-  char filepath[_MAX_PATH]/* = { 0 }*//*;
+  char filepath[_MAX_PATH];
   ConvertUnicodeFn(filepath, ARRAYSIZE(filepath), fn, CP_ACP);
 
   MSXPLUG_init();
@@ -1028,7 +1027,9 @@ int MSXPLUG_infoDlg(const in_char *fn, HWND hwnd)
 
 void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in_ms)
 {
+#ifndef WACUP_BUILD
   const int MAXLEN = _MAX_PATH ;
+#endif
   PLSITEM *item ;
   char filepath[_MAX_PATH]/* = { 0 }*/;
 
@@ -1189,10 +1190,10 @@ static void play_stop()
   thread_handle = INVALID_HANDLE_VALUE;
 }
 
-static int isStopped(void)
+/*static int isStopped(void)
 {
   return KSSPLAY_get_stop_flag(kssplay);
-}
+}*/
 
 /* check loop */
 static int isLooped(void)

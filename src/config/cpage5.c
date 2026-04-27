@@ -45,10 +45,6 @@ PAN_SLIDER[] =
   {IDC_OPLL_PAN,"OPLL_PAN_MIXER"}
 };
 
-static void create_pan_slider(HWND hDlg,CONFIG *config)
-{
-}
-
 static void update_page(HWND hDlg, CONFIG *config)
 {
   HWND hWnd ;
