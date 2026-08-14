@@ -6,7 +6,6 @@
 #endif
 #include <commdlg.h>
 #include <commctrl.h>
-#include <strsafe.h>
 #include "in_msx.h"
 #include "msxplug.h"
 #include <winamp/wa_cup.h>
@@ -276,7 +275,7 @@ extern "C" __declspec(dllexport) int winampGetExtendedFileInfoW(const wchar_t* f
             int pID = -1;
             for (size_t i = 0; i < ARRAYSIZE(extension_list); i++)
             {
-                if (SameStr(e, extension_list[i].ext))
+                if (!FastCompare(e, extension_list[i].ext))
                 {
                     pID = extension_list[i].id;
                 }
@@ -387,4 +386,4 @@ extern "C" UINT GetOpenFolderName(HWND hWnd, wchar_t* buf, const int buflen)
     return IDCANCEL;
 }
 
-DLL_DELAY_LOAD_HANDLER
+DLL_DELAY_LOAD_HANDLER_OVERRIDE

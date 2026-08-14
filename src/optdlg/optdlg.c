@@ -6,7 +6,6 @@
 #include "kssplay.h"
 #include "optdlg/optdlg.h"
 #include "rc/resource.h"
-#include <strsafe.h>
 
 static char *getLyrics(OPTDLG *__this)
 {

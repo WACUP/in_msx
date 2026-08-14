@@ -2,7 +2,6 @@
 #define _CONFIG_H_
 
 #include <windows.h>
-#include <strsafe.h>
 #include <stdlib.h>
 #include <prsht.h>
 #include <crtdbg.h>

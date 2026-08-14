@@ -3,7 +3,6 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <commctrl.h>
-#include <strsafe.h>
 #if defined(_DEBUG)
 #include <crtdbg.h>
 #define _CRTDBG_MAP_ALLOC 
