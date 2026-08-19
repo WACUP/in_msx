@@ -1038,12 +1038,15 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
 
   if((!filename)||(!filename[0])||SameStrA(filepath,current_file))
   {
+    if (title)
+    {
 #ifndef WACUP_BUILD
-    strncpy(title, (char*)current_kss->title, MAXLEN);
-    title[MAXLEN] = '\0';
+      strncpy(title, (char*)current_kss->title, MAXLEN);
+      title[MAXLEN] = '\0';
 #else
-    ConvertANSI((char*)current_kss->title, -1, CP_ACP,
-                title, GETFILEINFO_TITLE_LENGTH, NULL);
+      ConvertANSI((char*)current_kss->title, -1, CP_ACP,
+                  title, GETFILEINFO_TITLE_LENGTH, NULL);
+    }
 #endif
     if (length_in_ms)
     {
@@ -1082,13 +1085,16 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
 
     if(item->title)
     {
+      if (title)
+      {
 #ifndef WACUP_BUILD
-      strncpy(title, item->title, MAXLEN);
-      title[MAXLEN] = '\0';
+        strncpy(title, item->title, MAXLEN);
+        title[MAXLEN] = '\0';
 #else
-      ConvertANSI(item->title, -1, CP_ACP, title,
-                  GETFILEINFO_TITLE_LENGTH, NULL);
+        ConvertANSI(item->title, -1, CP_ACP, title,
+                    GETFILEINFO_TITLE_LENGTH, NULL);
 #endif
+      }
     }
     else
     {
@@ -1096,13 +1102,16 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
 
       if((kss = KSS_load_file(item->filename))==NULL)
       {
+        if (title)
+        {
 #ifndef WACUP_BUILD
-        strncpy(title, item->filename, MAXLEN);
-        title[MAXLEN] = '\0';
+          strncpy(title, item->filename, MAXLEN);
+          title[MAXLEN] = '\0';
 #else
-        ConvertANSI(item->filename, -1, CP_ACP, title,
-                      GETFILEINFO_TITLE_LENGTH, NULL);
+          ConvertANSI(item->filename, -1, CP_ACP, title,
+                        GETFILEINFO_TITLE_LENGTH, NULL);
 #endif
+        }
       }
       else
       {
@@ -1112,13 +1121,17 @@ void MSXPLUG_getfileinfo(const in_char *filename, in_char *title, int *length_in
           kss->title[KSS_TITLE_MAX-1] = '\0' ;
         }
 
+        if (title)
+        {
 #ifndef WACUP_BUILD
-        strncpy(title, (char*)kss->title, MAXLEN);
-        title[MAXLEN] = '\0';
+          strncpy(title, (char*)kss->title, MAXLEN);
+          title[MAXLEN] = '\0';
 #else
-        ConvertANSI((char*)kss->title, -1, CP_ACP, title,
-                         GETFILEINFO_TITLE_LENGTH, NULL);
+          ConvertANSI((char*)kss->title, -1, CP_ACP, title,
+                           GETFILEINFO_TITLE_LENGTH, NULL);
 #endif
+        }
+
         KSS_delete(kss) ;
       }
     }
