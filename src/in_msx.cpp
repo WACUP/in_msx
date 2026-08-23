@@ -57,8 +57,12 @@ extern "C" In_Module plugin =
 	
     /* PLAYBACK STUFF */
     MSXPLUG_play, /* return zero on success, -1 on file-not-found, some other value on other (stopping winamp) error */
+#ifndef _WIN64
     MSXPLUG_pause, /* pause stream */
     MSXPLUG_unpause, /* unpause stream */
+#else
+    MSXPLUG_setpause,   /* pause / unpause stream */
+#endif
     MSXPLUG_ispaused, /* ispaused? return 1 if pause, 0 if not */
     MSXPLUG_stop, /* stop (unload) stream */
 	

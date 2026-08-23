@@ -23,8 +23,12 @@ int MSXPLUG_infoDlg(const in_char *file, HWND hParent) ;
 //int MSXPLUG_isourfile(const in_char *fn) ;
 	
 int MSXPLUG_play(const in_char *fn) ;
+#ifndef _WIN64
 void MSXPLUG_pause() ;
 void MSXPLUG_unpause() ;
+#else
+void MSXPLUG_setpause(const int paused) ;
+#endif
 int MSXPLUG_ispaused() ;
 void MSXPLUG_stop() ;
 const char *MSXPLUG_getMGStext() ;
@@ -35,8 +39,8 @@ int MSXPLUG_getlength() ;
 int MSXPLUG_getoutputtime() ;
 void MSXPLUG_setoutputtime(int time_in_ms) ;
 
-void MSXPLUG_setvolume(int volume) ;
-void MSXPLUG_setpan(int pan) ;
+void MSXPLUG_setvolume(const int volume) ;
+void MSXPLUG_setpan(const int pan) ;
 
 #ifndef WACUP_BUILD
 void MSXPLUG_eq_set(int on, char data[10], int preamp) ;

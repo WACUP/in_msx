@@ -879,8 +879,12 @@ int MSXPLUG_play(const in_char *fn) {
   return 0 ; 
 } 
 
+#ifndef _WIN64
 void MSXPLUG_pause() { pause_flag = 1 ; if (plugin.outMod) plugin.outMod->Pause(1) ; }
 void MSXPLUG_unpause() { pause_flag = 0 ; if (plugin.outMod) plugin.outMod->Pause(0) ; }
+#else
+void MSXPLUG_setpause(const int paused) { pause_flag = paused ; if (plugin.outMod) plugin.outMod->Pause(paused) ; }
+#endif
 int MSXPLUG_ispaused() { return pause_flag ; } 
 
 static int isPlaying(void) ;
@@ -984,7 +988,7 @@ void MSXPLUG_setoutputtime(int time_in_ms)
   play_start() ;
 } 
 
-void MSXPLUG_setvolume(int volume)
+void MSXPLUG_setvolume(const int volume)
 {
   if (plugin.outMod)
   {
@@ -992,7 +996,7 @@ void MSXPLUG_setvolume(int volume)
   }
 }
 
-void MSXPLUG_setpan(int pan)
+void MSXPLUG_setpan(const int pan)
 {
   if (plugin.outMod)
   {
