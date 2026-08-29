@@ -563,8 +563,9 @@ static void detect_time_setting(void)
 void MSXPLUG_play2(int pos, int arg)
 {
   play_arg = arg ;
+  SetAndPlayPlaylistPos(pos, TRUE, -1)/*/
   SendMessage(plugin.hMainWindow,WM_WA_IPC,pos,IPC_SETPLAYLISTPOS) ;
-  PostMessage(plugin.hMainWindow, WM_COMMAND, WINAMP_BUTTON2, 0) ;
+  PostMessage(plugin.hMainWindow, WM_COMMAND, WINAMP_BUTTON2, 0)/**/ ;
 }
 
 void MSXPLUG_play_song(int pos)
@@ -824,13 +825,16 @@ static void setup_window(void)
 }
 
 static int refresh_current_item(void) ;
+#ifndef _WIN64
 int MSXPLUG_play(const in_char *fn) {
-  
+#else
+int MSXPLUG_play(const in_char *fn, const int seek_offset) {
+#endif
   int maxlatency ;
 
   setup_window() ;  
 
-  current_pos = (int)SendMessage(plugin.hMainWindow,WM_WA_IPC,0,IPC_GETLISTPOS) ;
+  current_pos = GetPlaylistPosition()/*/(int)SendMessage(plugin.hMainWindow,WM_WA_IPC,0,IPC_GETLISTPOS)/**/ ;
 
   if(plsdlg&&plsdlg->sync)
     PLSDLG_set_item(plsdlg,current_pos) ;
@@ -858,7 +862,6 @@ int MSXPLUG_play(const in_char *fn) {
   plugin.VisInitInfo(maxlatency,RATE,NCH);
 #endif
   plugin.outMod->SetVolume(-666);
-  plugin.outMod->Flush(0) ;
   flush_flag = 1 ;
 
   if(pls_refresh_flag)
@@ -871,6 +874,14 @@ int MSXPLUG_play(const in_char *fn) {
   }
   else
   {
+#ifdef _WIN64
+    if (seek_offset != -1)
+    {
+        MSXPLUG_setoutputtime(MS2POS(seek_offset)) ; /* Auto seek start */
+    }
+    else
+#endif
+
     play_start() ;
     if( detect_mode >= 2 ) MSXPLUG_setoutputtime(MS2POS(play_time)) ; /* Auto seek start */
   }

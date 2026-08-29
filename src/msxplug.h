@@ -22,11 +22,12 @@ void MSXPLUG_getfileinfo(const in_char *file, in_char *title, int *length_in_ms)
 int MSXPLUG_infoDlg(const in_char *file, HWND hParent) ;
 //int MSXPLUG_isourfile(const in_char *fn) ;
 	
-int MSXPLUG_play(const in_char *fn) ;
 #ifndef _WIN64
+int MSXPLUG_play(const in_char *fn) ;
 void MSXPLUG_pause() ;
 void MSXPLUG_unpause() ;
 #else
+int MSXPLUG_play(const in_char *fn, const int seek_offset) ;
 void MSXPLUG_setpause(const int paused) ;
 #endif
 int MSXPLUG_ispaused() ;
