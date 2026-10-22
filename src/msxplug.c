@@ -846,8 +846,7 @@ int MSXPLUG_play(const in_char *fn, const int seek_offset) {
     return 1 ;
   }
 
-  maxlatency = (plugin.outMod && plugin.outMod->Open && RATE && NCH ?
-                plugin.outMod->Open(RATE, NCH, BPS, -1, -1) : -1);
+  maxlatency = OpenOutputPlugin(&plugin, RATE, NCH, BPS);
 	if(maxlatency < 0)
   {
     play_arg = 0 ;
@@ -1365,7 +1364,6 @@ static DWORD WINAPI __stdcall PlayThread(void *b)
       plugin.outMod->Write((char *)sample_buf,length);
       flush_flag = 0 ;
       plugin.SAAddPCMData(sample_buf,NCH,BPS,decode_pos_ms) ;
-      /*plugin.VSAAddPCMData(sample_buf,NCH,BPS,decode_pos_ms) ;*/
 
     }
     else Sleep(10);
