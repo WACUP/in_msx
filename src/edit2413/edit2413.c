@@ -399,7 +399,7 @@ void EDIT2413_open(EDIT2413 *edit2413, HWND hwndParent, HINSTANCE hInst)
 
       SetProp(edit2413->hMain, TEXT("EDIT2413"), edit2413) ;
 
-      GetClientRect(GetDlgItem(edit2413->hMain,IDC_VOICETREE), &rect) ;
+      GetDlgItemClientRect(edit2413->hMain,IDC_VOICETREE, &rect) ;
       x = rect.right + 8 ;
 
       for(i=TL;i<=WS;i++)

@@ -331,13 +331,13 @@ CONFIG *CONFIG_new(char *path, char *section)
   _add_param_str("MBK_PATH",0,0,"");
   _add_param_str("MBK_DUMMY",0,0,"__DUMMY.MBK");
 
-  _add_param_str("MGSDRV",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\MGSDRV.COM"));
-  _add_param_str("KINROU",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\KINROU5.DRV"));
-  _add_param_str("MPK103",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\MPK103.BIN"));
-  _add_param_str("MPK106",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\MPK.BIN"));
-  _add_param_str("OPXDRV",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\OPX4KSS.BIN"));
-  _add_param_str("FMBIOS",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\FMPAC.ROM"));
-  _add_param_str("MBMDRV",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\MBR143.001"));
+  _add_param_str("MGSDRV",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\MGSDRV.COM",false));
+  _add_param_str("KINROU",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\KINROU5.DRV",false));
+  _add_param_str("MPK103",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\MPK103.BIN",false));
+  _add_param_str("MPK106",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\MPK.BIN",false));
+  _add_param_str("OPXDRV",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\OPX4KSS.BIN",false));
+  _add_param_str("FMBIOS",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\FMPAC.ROM",false));
+  _add_param_str("MBMDRV",0,0,CombinePathA(temp,path,PLUGIN_NAME"\\MBR143.001",false));
 
   _add_param_int("TIME_DETECT_MODE",  FMT_DEC, 0,3,1);
   _add_param_int("TIME_DETECT_LEVEL", FMT_DEC, 0,1,0);
@@ -354,10 +354,10 @@ CONFIG *CONFIG_new(char *path, char *section)
 
   /*strcpy(config->file_name, path);
   strcat(config->file_name, PLUGIN_NAME".ini");*/
-  CombinePathA(config->file_name, path, PLUGIN_NAME".ini");
+  CombinePathA(config->file_name, path, PLUGIN_NAME".ini", false);
   /*strcpy(config->ill_path, path);
   strcat(config->ill_path, PLUGIN_NAME".ill");*/
-  CombinePathA(config->ill_path, path, PLUGIN_NAME".ill");
+  CombinePathA(config->ill_path, path, PLUGIN_NAME".ill", false);
   strcpy(config->section_name, section);
 
   return config ;
