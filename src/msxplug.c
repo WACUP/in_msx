@@ -1195,11 +1195,21 @@ static int refresh_current_item(void)
   return 0 ;
 }
 
+static int StorePlaybackThread(HANDLE thread, LPVOID parameter)
+{
+  if (parameter != NULL)
+  {
+    thread_handle = thread;
+    return 1;
+  }
+  return 0;
+}
+
 static void play_start()
 {
   if(thread_handle!=INVALID_HANDLE_VALUE) return ;
   killPlayThread = 0 ;
-  thread_handle = StartPlaybackThread(PlayThread, &killPlayThread, 0, NULL);
+  StartPlaybackThread(PlayThread, &killPlayThread, 0, StorePlaybackThread);
 }
 
 static void play_stop()
